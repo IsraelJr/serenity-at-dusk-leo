@@ -1,6 +1,6 @@
 {
   "name": "serenity-at-dusk-leo-fase1",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,16 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@pixi/react": "^7.1.2",
     "@types/node": "^20.11.30",
     "@types/react": "^18.2.67",
     "@types/react-dom": "^18.2.22",
     "framer-motion": "^11.0.8",
+    "gsap": "^3.12.5",
+    "howler": "^2.2.4",
     "next": "^14.2.3",
+    "pixi.js": "^7.4.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^5.4.2"
   },
   "devDependencies": {
+    "@types/howler": "^2.2.12",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.3"
   }
