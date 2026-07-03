@@ -2,65 +2,78 @@
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: 20px;
+  padding: 22px;
   background:
-    radial-gradient(circle at top left, rgba(255, 210, 63, 0.16), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(146, 212, 255, 0.16), transparent 34%),
-    #071c45;
+    radial-gradient(circle at top left, rgba(255, 210, 63, 0.14), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(87, 137, 255, 0.2), transparent 34%),
+    linear-gradient(180deg, #061a42, #030a1c 78%);
   color: white;
 }
 .shell {
-  width: min(1120px, 100%);
-  display: grid;
-  gap: 14px;
-}
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 20px;
-  padding: 0 4px;
-}
-.header p {
-  margin: 0 0 4px;
-  color: #ffd23f;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.78rem;
-}
-.header h1 {
-  margin: 0;
-  font-size: clamp(1.7rem, 4vw, 3rem);
-  line-height: 1;
-}
-.header span {
-  color: rgba(255, 255, 255, 0.72);
-  font-weight: 800;
-  text-align: right;
+  width: min(1160px, 100%);
 }
 .gameWindow {
   position: relative;
   overflow: hidden;
-  border-radius: 28px;
-  background: #0d2c68;
-  border: 5px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+  border-radius: 30px;
+  background: #071c45;
+  border: 1px solid rgba(255, 210, 63, 0.24);
+  box-shadow:
+    0 32px 90px rgba(0, 0, 0, 0.44),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 .canvasWrap {
   aspect-ratio: 16 / 9;
   width: 100%;
-  background: #fff7df;
+  background: #071c45;
 }
 .canvasWrap canvas {
   width: 100% !important;
   height: 100% !important;
   display: block;
 }
+.cinematicFade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 54% 43%, transparent 0%, transparent 48%, rgba(0, 0, 0, 0.3) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.18), transparent 20%, transparent 62%, rgba(0,0,0,0.34));
+}
+.sunRay {
+  position: absolute;
+  z-index: 1;
+  left: 44%;
+  top: 0;
+  width: 28%;
+  height: 86%;
+  transform: skewX(-18deg);
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 226, 132, 0.28), rgba(255, 226, 132, 0.04), transparent 72%);
+  mix-blend-mode: screen;
+  filter: blur(8px);
+  opacity: 0.76;
+  animation: breathe 5.4s ease-in-out infinite alternate;
+}
+.dustLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+.dustLayer span {
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(255, 239, 182, 0.62);
+  box-shadow: 0 0 12px rgba(255, 226, 132, 0.48);
+  animation: dustFloat linear infinite;
+}
 .hudTopLeft,
 .hudTopRight {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   top: 16px;
   display: flex;
   align-items: center;
@@ -73,10 +86,10 @@
   min-height: 38px;
   border-radius: 999px;
   border: 1px solid rgba(255, 210, 63, 0.44);
-  background: rgba(8, 20, 45, 0.46);
+  background: rgba(5, 14, 31, 0.42);
   color: white;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
   font-weight: 950;
 }
 .hudTopLeft span {
@@ -91,19 +104,40 @@
 .startOverlay {
   position: absolute;
   inset: 0;
-  z-index: 4;
+  z-index: 5;
   display: grid;
   place-content: center;
   text-align: center;
   padding: 28px;
-  background: linear-gradient(180deg, rgba(7, 28, 69, 0.22), rgba(7, 28, 69, 0.72));
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255, 210, 63, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(4, 10, 27, 0.28), rgba(4, 10, 27, 0.84));
+  animation: fadeIn 0.9s ease both;
+}
+.startCard {
+  max-width: 620px;
+  padding: clamp(24px, 5vw, 46px);
+  border-radius: 30px;
+  background: rgba(5, 14, 31, 0.44);
+  border: 1px solid rgba(255, 210, 63, 0.32);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.34);
+}
+.startCard span {
+  color: #ffd23f;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 950;
+  font-size: 0.82rem;
 }
 .startOverlay h2 {
-  margin: 0 0 10px;
-  font-size: clamp(2rem, 5vw, 4rem);
+  margin: 10px 0 12px;
+  font-size: clamp(2.2rem, 5vw, 4.6rem);
+  line-height: 0.92;
+  text-shadow: 0 8px 30px rgba(0, 0, 0, 0.42);
 }
 .startOverlay p {
-  margin: 0 auto 22px;
+  margin: 0 auto 24px;
   max-width: 540px;
   color: rgba(255, 255, 255, 0.86);
   font-size: 1.08rem;
@@ -129,42 +163,51 @@
   padding: 15px 24px;
   border-radius: 999px;
   color: #0d2c68;
-  background: #ffd23f;
+  background: linear-gradient(180deg, #ffe482, #ffd23f);
   box-shadow: 0 16px 38px rgba(255, 210, 63, 0.28);
 }
 .dialogueBox {
   position: absolute;
-  z-index: 3;
+  z-index: 4;
   left: 50%;
-  bottom: clamp(18px, 5vw, 44px);
+  bottom: clamp(18px, 5vw, 42px);
   transform: translateX(-50%);
   width: min(820px, calc(100% - 52px));
   min-height: 112px;
   padding: 16px 82px 16px 20px;
   border-radius: 22px;
-  background: rgba(8, 20, 45, 0.48);
+  background: rgba(5, 14, 31, 0.5);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.26);
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 210, 63, 0.42);
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  animation: dialogueEnter 0.75s ease 0.2s forwards;
+}
+.dialogueVisible {
+  opacity: 1;
 }
 .namePlate {
   display: inline-flex;
   align-items: center;
   min-height: 28px;
   margin-bottom: 8px;
-  padding: 5px 12px;
+  padding: 5px 13px;
   border-radius: 999px;
-  background: rgba(255, 210, 63, 0.92);
+  background: linear-gradient(180deg, rgba(255, 228, 130, 0.96), rgba(255, 210, 63, 0.94));
   color: #0d2c68;
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.22);
   font-weight: 950;
 }
 .dialogueBox p {
   margin: 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.42);
-  font-size: clamp(1.02rem, 2.2vw, 1.28rem);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.44);
+  font-size: clamp(1.03rem, 2.2vw, 1.32rem);
   line-height: 1.42;
   font-weight: 820;
+  animation: textPop 0.35s ease both;
 }
 .nextButton {
   position: absolute;
@@ -174,8 +217,10 @@
   height: 48px;
   border-radius: 999px;
   color: #0d2c68;
-  background: rgba(255, 210, 63, 0.96);
+  background: linear-gradient(180deg, #ffe482, #ffd23f);
   font-size: 1.35rem;
+  box-shadow: 0 10px 24px rgba(255, 210, 63, 0.26);
+  animation: arrowPulse 1.6s ease-in-out infinite;
 }
 .choices {
   display: grid;
@@ -188,19 +233,46 @@
   padding: 11px 13px;
   border-radius: 14px;
   color: #0d2c68;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 210, 63, 0.45);
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes dialogueEnter {
+  from { opacity: 0; transform: translate(-50%, 18px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes textPop {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes arrowPulse {
+  0%, 100% { transform: translateY(0); box-shadow: 0 10px 24px rgba(255, 210, 63, 0.22); }
+  50% { transform: translateY(-3px); box-shadow: 0 16px 30px rgba(255, 210, 63, 0.36); }
+}
+@keyframes dustFloat {
+  from { transform: translate3d(0, 18px, 0); opacity: 0; }
+  20% { opacity: 0.85; }
+  80% { opacity: 0.55; }
+  to { transform: translate3d(18px, -34px, 0); opacity: 0; }
+}
+@keyframes breathe {
+  from { opacity: 0.48; }
+  to { opacity: 0.9; }
 }
 @media (max-width: 720px) {
   .page { padding: 0; }
-  .shell { width: 100%; min-height: 100dvh; gap: 0; }
-  .header { padding: 12px; align-items: flex-start; }
-  .header span { display: none; }
-  .gameWindow { border-radius: 0; border-left: 0; border-right: 0; }
+  .shell { width: 100%; min-height: 100dvh; }
+  .gameWindow { border-radius: 0; border-left: 0; border-right: 0; min-height: 100dvh; display: grid; place-items: center; }
+  .canvasWrap { width: 100%; }
   .hudTopLeft,
   .hudTopRight { top: 10px; }
   .hudTopLeft { left: 10px; }
   .hudTopRight { right: 10px; }
+  .hudTopLeft span { padding: 0 12px; min-height: 34px; font-size: 0.85rem; }
+  .hudTopRight button { width: 34px; min-height: 34px; }
   .dialogueBox {
     width: calc(100% - 24px);
     bottom: 12px;
