@@ -37,11 +37,11 @@ const branchSteps: Record<BranchKey, DialogueStep[]> = {
 };
 
 const focusMap: Record<FocusTarget, { x: number; y: number; scale: number; glowX: number; glowY: number }> = {
-  room: { x: 0, y: 0, scale: 1, glowX: 58, glowY: 45 },
-  window: { x: 3, y: 1, scale: 1.07, glowX: 14, glowY: 20 },
-  leo: { x: -7, y: -3, scale: 1.12, glowX: 48, glowY: 50 },
-  drawer: { x: -11, y: -4, scale: 1.14, glowX: 58, glowY: 45 },
-  coin: { x: -13, y: -2, scale: 1.18, glowX: 58, glowY: 45 }
+  room: { x: 0, y: 0, scale: 1, glowX: 57, glowY: 60 },
+  window: { x: 3, y: 1, scale: 1.07, glowX: 16, glowY: 28 },
+  leo: { x: -7, y: -3, scale: 1.12, glowX: 45, glowY: 52 },
+  drawer: { x: -11, y: -4, scale: 1.14, glowX: 57, glowY: 60 },
+  coin: { x: -13, y: -2, scale: 1.18, glowX: 57, glowY: 60 }
 };
 
 function playBirdChirp(context: AudioContext, destination: GainNode) {
@@ -163,7 +163,7 @@ export function GameCanvasFixed() {
         <div className={styles.gameWindow}>
           <div className={styles.canvasWrap} style={{ position: "relative", overflow: "hidden" }}>
             <img
-              src="/assets/leo-room-real-embedded.svg?v=real-embedded-1"
+              src="/assets/leo-room-scene.svg?v=stable-1"
               alt="Quarto do Léo pela manhã"
               style={{
                 position: "absolute",
@@ -212,7 +212,7 @@ export function GameCanvasFixed() {
               <div className={styles.startCard}>
                 <span>Uma história interativa</span>
                 <h2>A Moedinha de Léo</h2>
-                <p>Agora com o quarto do Léo em cena e sequência diferente conforme a escolha do jogador.</p>
+                <p>Agora com cena estável para testar roteiro, escolhas e navegação.</p>
                 <button onClick={start}>Iniciar jornada</button>
               </div>
             </div>
