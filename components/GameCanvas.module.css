@@ -57,6 +57,37 @@
   height: 100% !important;
   display: block;
 }
+.hudTopLeft,
+.hudTopRight {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hudTopLeft { left: 16px; }
+.hudTopRight { right: 16px; }
+.hudTopLeft span,
+.hudTopRight button {
+  min-height: 38px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 210, 63, 0.44);
+  background: rgba(8, 20, 45, 0.46);
+  color: white;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+  font-weight: 950;
+}
+.hudTopLeft span {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 17px;
+}
+.hudTopRight button {
+  width: 38px;
+  cursor: pointer;
+}
 .startOverlay {
   position: absolute;
   inset: 0;
@@ -80,7 +111,8 @@
 }
 .startOverlay button,
 .nextButton,
-.choices button {
+.choices button,
+.hudTopRight button {
   border: 0;
   cursor: pointer;
   font-weight: 950;
@@ -88,7 +120,8 @@
 }
 .startOverlay button:hover,
 .nextButton:hover,
-.choices button:hover {
+.choices button:hover,
+.hudTopRight button:hover {
   transform: translateY(-2px);
 }
 .startOverlay button {
@@ -164,6 +197,10 @@
   .header { padding: 12px; align-items: flex-start; }
   .header span { display: none; }
   .gameWindow { border-radius: 0; border-left: 0; border-right: 0; }
+  .hudTopLeft,
+  .hudTopRight { top: 10px; }
+  .hudTopLeft { left: 10px; }
+  .hudTopRight { right: 10px; }
   .dialogueBox {
     width: calc(100% - 24px);
     bottom: 12px;
