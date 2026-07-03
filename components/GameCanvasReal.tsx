@@ -7,12 +7,11 @@ type Branch = "save" | "spend";
 type SceneKey = "intro" | "save" | "spend";
 type Step = { speaker: string; text: string; focus: string; scene: SceneKey };
 type Camera = { x: number; y: number; scale: number; glowX: number; glowY: number };
-type AudioWindow = Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=calm-intro-1",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=calm-spend-1",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=calm-save-1"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=crossfade-intro-1",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=crossfade-spend-1",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=crossfade-save-1"
 };
 
 const intro: Step[] = [
@@ -38,8 +37,7 @@ const endings: Record<Branch, Step[]> = {
 };
 
 const camera: Record<string, Camera> = {
-  "far-room": { x: 0, y: 0, scale: 0.92, glowX: 48, glowY: 42 },
-  "open-room": { x: 0, y: 0, scale: 0.96, glowX: 50, glowY: 45 },
+  "far-room": { x: 0, y: 0, scale: 0.9, glowX: 48, glowY: 42 },
   "sunny-room": { x: 1, y: 1, scale: 1.01, glowX: 18, glowY: 25 },
   "leo-bed": { x: -3, y: -2, scale: 1.05, glowX: 47, glowY: 50 },
   "coin-close": { x: -8, y: -4, scale: 1.12, glowX: 58, glowY: 58 },
@@ -47,28 +45,19 @@ const camera: Record<string, Camera> = {
   "spend-main": { x: -8, y: -3, scale: 1.08, glowX: 74, glowY: 45 }
 };
 
-function playSoftBird(context: AudioContext, output: GainNode) {
+function playSoftMorningTone(context: AudioContext, output: GainNode) {
   const now = context.currentTime;
-  const notes = [980 + Math.random() * 260, 1220 + Math.random() * 320, 1080 + Math.random() * 240];
-
-  notes.forEach((frequency, index) => {
-    const osc = context.createOscillator();
-    const gain = context.createGain();
-    const start = now + index * 0.115;
-
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(frequency, start);
-    osc.frequency.exponentialRampToValueAtTime(frequency * 1.12, start + 0.055);
-    osc.frequency.exponentialRampToValueAtTime(frequency * 0.96, start + 0.16);
-
-    gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.exponentialRampToValueAtTime(0.018, start + 0.035);
-    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.24);
-
-    osc.connect(gain).connect(output);
-    osc.start(start);
-    osc.stop(start + 0.26);
-  });
+  const osc = context.createOscillator();
+  const gain = context.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(620 + Math.random() * 90, now);
+  osc.frequency.exponentialRampToValueAtTime(760 + Math.random() * 80, now + 0.9);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.012, now + 0.25);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+  osc.connect(gain).connect(output);
+  osc.start(now);
+  osc.stop(now + 1.7);
 }
 
 export function GameCanvasReal() {
@@ -78,51 +67,52 @@ export function GameCanvasReal() {
   const [index, setIndex] = useState(0);
   const [branch, setBranch] = useState<Branch | null>(null);
   const [displayScene, setDisplayScene] = useState<SceneKey>("intro");
+  const [incomingScene, setIncomingScene] = useState<SceneKey | null>(null);
+  const [incomingVisible, setIncomingVisible] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
-  const [transitionKind, setTransitionKind] = useState<Branch | "restart" | null>(null);
   const [lockedCamera, setLockedCamera] = useState<Camera | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioGainRef = useRef<GainNode | null>(null);
-  const birdTimerRef = useRef<number | null>(null);
+  const soundTimerRef = useRef<number | null>(null);
 
   const steps = useMemo(() => (branch ? [...intro, ...endings[branch]] : intro), [branch]);
   const step = steps[index] ?? steps[steps.length - 1];
   const isChoice = !branch && index === intro.length - 1;
   const isLast = index >= steps.length - 1;
 
-  const normalCam = camera[step.focus] ?? camera["open-room"];
+  const normalCam = camera[step.focus] ?? camera["far-room"];
   const introCam = introSettled ? camera["sunny-room"] : camera["far-room"];
   const cam = lockedCamera ?? (cinematicIntro ? introCam : started ? normalCam : camera["far-room"]);
 
   useEffect(() => {
-    return () => stopBirds();
+    return () => stopMorningSound();
   }, []);
 
-  function startBirds() {
+  function startMorningSound() {
     if (audioContextRef.current) return;
     try {
-      const AudioContextClass = window.AudioContext || (window as AudioWindow).webkitAudioContext;
+      const AudioContextClass = window.AudioContext || (window as Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AudioContextClass) return;
       const context = new AudioContextClass();
       const gain = context.createGain();
-      gain.gain.setValueAtTime(0.11, context.currentTime);
+      gain.gain.setValueAtTime(0.08, context.currentTime);
       gain.connect(context.destination);
       audioContextRef.current = context;
       audioGainRef.current = gain;
-      window.setTimeout(() => playSoftBird(context, gain), 420);
-      birdTimerRef.current = window.setInterval(() => {
-        if (audioContextRef.current && audioGainRef.current) playSoftBird(audioContextRef.current, audioGainRef.current);
-      }, 3400);
+      window.setTimeout(() => playSoftMorningTone(context, gain), 600);
+      soundTimerRef.current = window.setInterval(() => {
+        if (audioContextRef.current && audioGainRef.current) playSoftMorningTone(audioContextRef.current, audioGainRef.current);
+      }, 4200);
     } catch {
       audioContextRef.current = null;
       audioGainRef.current = null;
     }
   }
 
-  function stopBirds() {
-    if (birdTimerRef.current !== null) {
-      window.clearInterval(birdTimerRef.current);
-      birdTimerRef.current = null;
+  function stopMorningSound() {
+    if (soundTimerRef.current !== null) {
+      window.clearInterval(soundTimerRef.current);
+      soundTimerRef.current = null;
     }
     audioGainRef.current = null;
     audioContextRef.current?.close();
@@ -133,9 +123,9 @@ export function GameCanvasReal() {
     setStarted(true);
     setCinematicIntro(true);
     setIntroSettled(false);
-    startBirds();
-    window.setTimeout(() => setIntroSettled(true), 180);
-    window.setTimeout(() => setCinematicIntro(false), 3600);
+    startMorningSound();
+    window.setTimeout(() => setIntroSettled(true), 2000);
+    window.setTimeout(() => setCinematicIntro(false), 5600);
   }
 
   function next() {
@@ -149,9 +139,13 @@ export function GameCanvasReal() {
 
   function restart() {
     if (transitioning) return;
-    setTransitionKind("restart");
-    setLockedCamera(camera["far-room"]);
+    const target = camera["far-room"];
+    setLockedCamera(target);
+    setIncomingScene("intro");
+    setIncomingVisible(false);
     setTransitioning(true);
+
+    window.setTimeout(() => setIncomingVisible(true), 60);
     window.setTimeout(() => {
       setStarted(false);
       setCinematicIntro(false);
@@ -159,42 +153,40 @@ export function GameCanvasReal() {
       setIndex(0);
       setBranch(null);
       setDisplayScene("intro");
-      stopBirds();
-    }, 420);
+      stopMorningSound();
+    }, 1050);
     window.setTimeout(() => {
+      setIncomingScene(null);
+      setIncomingVisible(false);
       setTransitioning(false);
-      setTransitionKind(null);
       setLockedCamera(null);
-    }, 980);
+    }, 1250);
   }
 
   function choose(nextBranch: Branch) {
     if (transitioning) return;
-    const targetCamera = nextBranch === "save" ? camera["save-main"] : camera["spend-main"];
-
-    setTransitionKind(nextBranch);
-    setLockedCamera(targetCamera);
+    const target = nextBranch === "save" ? camera["save-main"] : camera["spend-main"];
+    setLockedCamera(target);
+    setIncomingScene(nextBranch);
+    setIncomingVisible(false);
     setTransitioning(true);
 
+    window.setTimeout(() => setIncomingVisible(true), 60);
     window.setTimeout(() => {
       setDisplayScene(nextBranch);
       setBranch(nextBranch);
       setIndex(intro.length);
-    }, 520);
-
+    }, 1100);
     window.setTimeout(() => {
+      setIncomingScene(null);
+      setIncomingVisible(false);
       setTransitioning(false);
-      setTransitionKind(null);
-    }, 1280);
-
-    window.setTimeout(() => setLockedCamera(null), 1500);
+      setLockedCamera(null);
+    }, 1320);
   }
 
   const shouldHideDialogue = !started || cinematicIntro || transitioning;
   const imageTransform = `translate(${cam.x}%, ${cam.y}%) scale(${cam.scale})`;
-  const transitionOverlay = transitionKind === "spend"
-    ? "linear-gradient(90deg, rgba(255,210,120,0.18), rgba(4,10,26,0.86), rgba(255,210,120,0.12))"
-    : "radial-gradient(circle at center, rgba(255,232,145,0.22), rgba(4,10,26,0.86))";
 
   return (
     <main className={styles.page}>
@@ -203,23 +195,39 @@ export function GameCanvasReal() {
           <div className={styles.canvasWrap} style={{ position: "relative", overflow: "hidden", background: "#081a3b" }}>
             <img
               src={scenes[displayScene]}
-              alt="Cena da história do Léo"
+              alt="Cena atual da história do Léo"
               style={{
                 position: "absolute",
                 inset: 0,
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
+                opacity: incomingVisible ? 0 : 1,
                 transform: imageTransform,
                 transformOrigin: "center center",
-                transition: transitioning ? "none" : "transform 3.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.5s ease-in-out",
-                filter: transitioning ? "brightness(0.72)" : "brightness(1)"
+                transition: transitioning ? "opacity 1.05s ease-in-out" : "transform 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.05s ease-in-out"
               }}
             />
 
-            <div style={{ position: "absolute", left: `${cam.glowX}%`, top: `${cam.glowY}%`, width: 150, height: 150, borderRadius: 999, background: "rgba(255, 239, 143, 0.3)", filter: "blur(14px)", opacity: transitioning ? 0.12 : 1, transform: "translate(-50%, -50%)", transition: transitioning ? "none" : "left 3.4s cubic-bezier(0.22, 1, 0.36, 1), top 3.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease" }} />
+            {incomingScene && (
+              <img
+                src={scenes[incomingScene]}
+                alt="Próxima cena da história do Léo"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  opacity: incomingVisible ? 1 : 0,
+                  transform: imageTransform,
+                  transformOrigin: "center center",
+                  transition: "opacity 1.05s ease-in-out"
+                }}
+              />
+            )}
 
-            <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: transitionOverlay, opacity: transitioning ? 1 : 0, transition: "opacity 0.52s ease-in-out" }} />
+            <div style={{ position: "absolute", left: `${cam.glowX}%`, top: `${cam.glowY}%`, width: 150, height: 150, borderRadius: 999, background: "rgba(255, 239, 143, 0.3)", filter: "blur(14px)", opacity: transitioning ? 0.22 : 1, transform: "translate(-50%, -50%)", transition: transitioning ? "opacity 0.5s ease" : "left 3.6s cubic-bezier(0.22, 1, 0.36, 1), top 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease" }} />
           </div>
 
           <div className={styles.cinematicFade} />
@@ -247,7 +255,7 @@ export function GameCanvasReal() {
               <div className={styles.startCard}>
                 <span>Uma história interativa</span>
                 <h2>A Moedinha de Léo</h2>
-                <p>Um dia ensolarado, passarinhos cantando e uma escolha importante.</p>
+                <p>Um dia ensolarado, uma manhã calma e uma escolha importante.</p>
                 <button onClick={next}>Iniciar jornada</button>
               </div>
             </div>
