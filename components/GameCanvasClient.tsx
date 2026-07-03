@@ -2,9 +2,9 @@
 
 import dynamic from "next/dynamic";
 
-const LoadedGameCanvas = dynamic(() => import("./GameCanvas").then((mod) => mod.GameCanvas), {
+const LoadedGameCanvas = dynamic(() => import("./GameCanvasFixed").then((mod) => mod.GameCanvasFixed), {
   ssr: false,
-  loading: () => <main>Carregando Serenity at Dusk do Léo...</main>
+  loading: () => <main>Carregando A Moedinha de Léo...</main>
 });
 
 export function GameCanvasClient() {
