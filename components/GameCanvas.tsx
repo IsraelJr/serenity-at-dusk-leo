@@ -1,8 +1,8 @@
 "use client";
 
-import { Application, Container, Graphics, Sprite, Text } from "@pixi/react";
+import { Container, Graphics, Stage, Text } from "@pixi/react";
 import { BlurFilter, TextStyle } from "pixi.js";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { Howl } from "howler";
 import styles from "./GameCanvas.module.css";
@@ -66,19 +66,6 @@ export function GameCanvas() {
   const step = steps[stepIndex];
   const isChoiceStep = step.id === "choice";
 
-  const textStyle = useMemo(
-    () =>
-      new TextStyle({
-        fontFamily: "Arial Rounded MT Bold, Arial, sans-serif",
-        fontSize: 28,
-        fill: "#102047",
-        wordWrap: true,
-        wordWrapWidth: 860,
-        lineHeight: 40
-      }),
-    []
-  );
-
   useEffect(() => {
     const target = focusMap[step.focus];
     gsap.to(camera.current, {
@@ -136,7 +123,7 @@ export function GameCanvas() {
 
         <div className={styles.gameWindow}>
           <div className={styles.canvasWrap}>
-            <Application width={960} height={540} background="#f7d88d" antialias resizeTo={undefined}>
+            <Stage width={960} height={540} options={{ backgroundColor: 0xf7d88d, antialias: true }}>
               <Container x={camera.current.x} y={camera.current.y} scale={camera.current.scale}>
                 <Graphics
                   draw={(g) => {
@@ -227,7 +214,7 @@ export function GameCanvas() {
                   }}
                 />
               </Container>
-            </Application>
+            </Stage>
           </div>
 
           {!started && (
