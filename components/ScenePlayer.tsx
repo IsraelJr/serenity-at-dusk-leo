@@ -81,9 +81,14 @@ export function ScenePlayer() {
           </motion.div>
         </AnimatePresence>
 
-        <motion.div className={styles.panel} initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
-          {scene.eyebrow && <p className={styles.eyebrow}>{scene.eyebrow}</p>}
-          <h1>{scene.title}</h1>
+        <motion.div className={styles.panel} initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.18 }}>
+          <div className={styles.panelHeader}>
+            <div>
+              {scene.eyebrow && <p className={styles.eyebrow}>{scene.eyebrow}</p>}
+              <h1>{scene.title}</h1>
+            </div>
+            <button onClick={restart} className={styles.linkButton}>Reiniciar</button>
+          </div>
 
           <div className={styles.dialogue}>
             <AnimatePresence>
@@ -118,7 +123,6 @@ export function ScenePlayer() {
 
           <footer className={styles.footer}>
             <span>Finais encontrados: {progress.endingsUnlocked.length}/2</span>
-            <button onClick={restart} className={styles.linkButton}>Reiniciar</button>
           </footer>
         </motion.div>
       </section>
