@@ -1,0 +1,14 @@
+.layer {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.sparkle {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: radial-gradient(circle, #fff 0 15%, #ffe17a 30%, rgba(255, 225, 122, 0) 70%);
+  filter: drop-shadow(0 0 9px rgba(255, 210, 63, 0.75));
+}
