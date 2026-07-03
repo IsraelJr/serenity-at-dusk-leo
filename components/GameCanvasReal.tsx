@@ -14,9 +14,9 @@ type Step = {
 };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=real-upload-2",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=spend-1",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=save-1"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=real-upload-3",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=spend-2",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=save-2"
 };
 
 const intro: Step[] = [
@@ -56,6 +56,7 @@ export function GameCanvasReal() {
   const [started, setStarted] = useState(false);
   const [index, setIndex] = useState(0);
   const [branch, setBranch] = useState<Branch | null>(null);
+  const [transitioning, setTransitioning] = useState(false);
 
   const steps = useMemo(() => (branch ? [...intro, ...endings[branch]] : intro), [branch]);
   const step = steps[index] ?? steps[steps.length - 1];
@@ -73,14 +74,22 @@ export function GameCanvasReal() {
   }
 
   function restart() {
-    setStarted(false);
-    setIndex(0);
-    setBranch(null);
+    setTransitioning(true);
+    window.setTimeout(() => {
+      setStarted(false);
+      setIndex(0);
+      setBranch(null);
+    }, 320);
+    window.setTimeout(() => setTransitioning(false), 720);
   }
 
   function choose(nextBranch: Branch) {
-    setBranch(nextBranch);
-    setIndex(intro.length);
+    setTransitioning(true);
+    window.setTimeout(() => {
+      setBranch(nextBranch);
+      setIndex(intro.length);
+    }, 420);
+    window.setTimeout(() => setTransitioning(false), 920);
   }
 
   return (
@@ -98,12 +107,25 @@ export function GameCanvasReal() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
+                opacity: transitioning ? 0.35 : 1,
                 transform: `translate(${cam.x}%, ${cam.y}%) scale(${cam.scale})`,
                 transformOrigin: "center center",
-                transition: "transform 1.3s ease-in-out, opacity 0.6s ease-in-out"
+                transition: "transform 1.3s ease-in-out, opacity 0.42s ease-in-out, filter 0.42s ease-in-out",
+                filter: transitioning ? "blur(6px) brightness(0.65)" : "blur(0) brightness(1)"
               }}
             />
-            <div style={{ position: "absolute", left: `${cam.glowX}%`, top: `${cam.glowY}%`, width: 120, height: 120, borderRadius: 999, background: "rgba(255, 242, 160, 0.34)", filter: "blur(10px)", transform: "translate(-50%, -50%)", transition: "left 1.3s ease, top 1.3s ease" }} />
+            <div style={{ position: "absolute", left: `${cam.glowX}%`, top: `${cam.glowY}%`, width: 120, height: 120, borderRadius: 999, background: "rgba(255, 242, 160, 0.34)", filter: "blur(10px)", opacity: transitioning ? 0 : 1, transform: "translate(-50%, -50%)", transition: "left 1.3s ease, top 1.3s ease, opacity 0.35s ease" }} />
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                pointerEvents: "none",
+                background: "radial-gradient(circle at center, rgba(255,210,63,0.18), rgba(3,10,28,0.88))",
+                opacity: transitioning ? 1 : 0,
+                transition: "opacity 0.42s ease-in-out"
+              }}
+            />
           </div>
 
           <div className={styles.cinematicFade} />
@@ -111,16 +133,16 @@ export function GameCanvasReal() {
           <div className={styles.hudTopLeft}><span>Cena {Math.min(index + 1, steps.length)}/{steps.length}</span></div>
           <div className={styles.hudTopRight}><button aria-label="Reiniciar" onClick={restart}>↺</button></div>
 
-          <div className={`${styles.dialogueBox} ${started ? styles.dialogueVisible : ""}`}>
+          <div className={`${styles.dialogueBox} ${started ? styles.dialogueVisible : ""}`} style={{ opacity: transitioning ? 0 : undefined, transform: transitioning ? "translate(-50%, 18px)" : undefined, transition: "opacity 0.35s ease, transform 0.35s ease" }}>
             <div className={styles.namePlate}>{step.speaker}</div>
             <p>{step.text}</p>
             {isChoice ? (
               <div className={styles.choices}>
-                <button onClick={() => choose("save")}>Guardar para o sonho</button>
-                <button onClick={() => choose("spend")}>Gastar agora</button>
+                <button disabled={transitioning} onClick={() => choose("save")}>Guardar para o sonho</button>
+                <button disabled={transitioning} onClick={() => choose("spend")}>Gastar agora</button>
               </div>
             ) : (
-              <button className={styles.nextButton} onClick={isLast ? restart : next}>{isLast ? "↺" : started ? "➜" : "▶"}</button>
+              <button disabled={transitioning} className={styles.nextButton} onClick={isLast ? restart : next}>{isLast ? "↺" : started ? "➜" : "▶"}</button>
             )}
           </div>
 
