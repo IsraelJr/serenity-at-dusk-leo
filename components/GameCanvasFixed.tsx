@@ -162,23 +162,20 @@ export function GameCanvasFixed() {
       <section className={styles.shell}>
         <div className={styles.gameWindow}>
           <div className={styles.canvasWrap} style={{ position: "relative", overflow: "hidden" }}>
-            <picture>
-              <source srcSet="/assets/leo-room-scene.jpg?v=real-1" type="image/jpeg" />
-              <img
-                src="/assets/leo-room-scene.jpg?v=real-1"
-                alt="Quarto do Léo pela manhã"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  transform: `translate(${focus.x}%, ${focus.y}%) scale(${focus.scale})`,
-                  transformOrigin: "center center",
-                  transition: "transform 1.3s ease-in-out"
-                }}
-              />
-            </picture>
+            <img
+              src="/assets/leo-room-real-embedded.svg?v=real-embedded-1"
+              alt="Quarto do Léo pela manhã"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transform: `translate(${focus.x}%, ${focus.y}%) scale(${focus.scale})`,
+                transformOrigin: "center center",
+                transition: "transform 1.3s ease-in-out"
+              }}
+            />
             <div style={{ position: "absolute", left: `${focus.glowX}%`, top: `${focus.glowY}%`, width: 120, height: 120, borderRadius: 999, background: "rgba(255, 242, 160, 0.34)", filter: "blur(10px)", transform: "translate(-50%, -50%)", transition: "left 1.3s ease, top 1.3s ease" }} />
           </div>
 
