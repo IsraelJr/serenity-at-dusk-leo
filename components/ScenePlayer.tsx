@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { SceneId, story } from "@/data/story";
 import { defaultProgress, loadProgress, resetProgress, saveProgress } from "@/lib/progress";
 import { Sparkles } from "./Sparkles";
@@ -13,8 +13,10 @@ export function ScenePlayer() {
   const [progress, setProgress] = useState(defaultProgress);
 
   const scene = story[sceneId];
-  const currentText = useMemo(() => scene.text.slice(0, lineIndex + 1), [scene, lineIndex]);
+  const currentLine = scene.text[lineIndex];
   const hasMoreText = lineIndex < scene.text.length - 1;
+  const canShowChoices = scene.kind === "choice" && !hasMoreText && scene.choices;
+  const canShowEnding = scene.kind === "ending" && !hasMoreText;
 
   useEffect(() => {
     const stored = loadProgress();
@@ -59,6 +61,7 @@ export function ScenePlayer() {
   function continueScene() {
     if (hasMoreText) {
       setLineIndex((current) => current + 1);
+      playTinyChime();
       return;
     }
     if (scene.next) goTo(scene.next);
@@ -72,58 +75,52 @@ export function ScenePlayer() {
 
   return (
     <main className={styles.shell}>
-      <section className={styles.stage}>
-        <AnimatePresence mode="wait">
-          <motion.div key={scene.id} className={styles.scene} initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.75, ease: "easeOut" }}>
-            <motion.img src={scene.image} alt="Cena ilustrada de Léo" className={styles.art} animate={{ scale: [1, 1.035, 1], x: [0, -8, 0] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} />
-            <div className={styles.sunGlow} />
-            <Sparkles />
-          </motion.div>
-        </AnimatePresence>
+      <section className={styles.gameFrame}>
+        <div className={styles.topBar}>
+          <span>Serenity at Dusk do Léo</span>
+          <button onClick={restart}>Reiniciar</button>
+        </div>
 
-        <motion.div className={styles.panel} initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.18 }}>
-          <div className={styles.panelHeader}>
-            <div>
-              {scene.eyebrow && <p className={styles.eyebrow}>{scene.eyebrow}</p>}
-              <h1>{scene.title}</h1>
-            </div>
-            <button onClick={restart} className={styles.linkButton}>Reiniciar</button>
-          </div>
+        <div className={styles.imageFrame}>
+          <AnimatePresence mode="wait">
+            <motion.div key={scene.id} className={styles.scene} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.55, ease: "easeOut" }}>
+              <motion.img src={scene.image} alt="Cena ilustrada de Léo" className={styles.art} animate={{ scale: [1, 1.025, 1] }} transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }} />
+              <div className={styles.sunGlow} />
+              <Sparkles />
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-          <div className={styles.dialogue}>
-            <AnimatePresence>
-              {currentText.map((line, index) => (
-                <motion.p key={`${scene.id}-${index}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  {line}
-                </motion.p>
-              ))}
-            </AnimatePresence>
-          </div>
+        <motion.div className={styles.dialogueFrame} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <div className={styles.namePlate}>{scene.title}</div>
 
-          {scene.kind === "choice" && !hasMoreText && scene.choices ? (
+          <AnimatePresence mode="wait">
+            <motion.p key={`${scene.id}-${lineIndex}`} className={styles.dialogueLine} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}>
+              {currentLine}
+            </motion.p>
+          </AnimatePresence>
+
+          {canShowChoices ? (
             <div className={styles.choices}>
-              {scene.choices.map((choice) => (
+              {scene.choices!.map((choice) => (
                 <button key={choice.next} className={`${styles.choice} ${styles[choice.tone]}`} onClick={() => goTo(choice.next, choice.label)}>
                   {choice.label}
                 </button>
               ))}
             </div>
-          ) : scene.kind === "ending" && !hasMoreText ? (
-            <div className={styles.endingBox}>
-              <strong>Aprendizado:</strong>
-              <span>{scene.lesson}</span>
-              <div className={styles.endingActions}>
-                <button onClick={() => goTo("first_choice")} className={styles.secondary}>Tentar outra escolha</button>
-                <button onClick={restart} className={styles.primary}>Voltar ao começo</button>
-              </div>
+          ) : canShowEnding ? (
+            <div className={styles.endingActions}>
+              <p className={styles.lesson}>{scene.lesson}</p>
+              <button onClick={() => goTo("first_choice")} className={styles.secondary}>Tentar outra escolha</button>
+              <button onClick={restart} className={styles.primary}>Voltar ao começo</button>
             </div>
           ) : (
-            <button className={styles.primary} onClick={continueScene}>{hasMoreText ? "Continuar" : scene.next ? "Avançar" : "Começar"}</button>
+            <button className={styles.nextButton} onClick={continueScene} aria-label="Avançar diálogo">
+              {scene.next && !hasMoreText ? "Começar" : "➜"}
+            </button>
           )}
 
-          <footer className={styles.footer}>
-            <span>Finais encontrados: {progress.endingsUnlocked.length}/2</span>
-          </footer>
+          <div className={styles.progress}>Finais: {progress.endingsUnlocked.length}/2</div>
         </motion.div>
       </section>
     </main>
