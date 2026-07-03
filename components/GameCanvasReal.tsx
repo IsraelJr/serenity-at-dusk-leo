@@ -14,42 +14,42 @@ type Step = {
 };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=real-upload-4",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=spend-3",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=save-3"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=real-upload-5",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=spend-4",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=save-4"
 };
 
 const intro: Step[] = [
-  { speaker: "Narrador", text: "O sol entrou devagar no quarto de Léo, iluminando seu cantinho favorito.", focus: "room", scene: "intro" },
-  { speaker: "Narrador", text: "Léo percebeu uma moedinha brilhando perto dele e abriu um sorriso de curiosidade.", focus: "leo", scene: "intro" },
-  { speaker: "Léo", text: "Uau... será que essa moedinha pode me ajudar a chegar mais perto do meu sonho?", focus: "coin", scene: "intro" },
-  { speaker: "Narrador", text: "O que Léo deve fazer com a moedinha?", focus: "choice", scene: "intro" }
+  { speaker: "Narrador", text: "Léo acabou de acordar em um dia muito ensolarado.", focus: "wide-room", scene: "intro" },
+  { speaker: "Narrador", text: "Lá fora, parecia um ótimo dia para brincar, correr e imaginar novas aventuras.", focus: "sunny-room", scene: "intro" },
+  { speaker: "Narrador", text: "Então Léo levantou da cama, se trocou e olhou ao redor do quarto.", focus: "leo-bed", scene: "intro" },
+  { speaker: "Narrador", text: "Foi aí que ele viu uma moedinha brilhando perto dele.", focus: "leo-bed", scene: "intro" },
+  { speaker: "Léo", text: "Uau... será que essa moedinha pode me ajudar a chegar mais perto do meu sonho?", focus: "coin-close", scene: "intro" },
+  { speaker: "Narrador", text: "O que Léo deve fazer com a moedinha?", focus: "coin-close", scene: "intro" }
 ];
 
 const endings: Record<Branch, Step[]> = {
   save: [
-    { speaker: "Léo", text: "Vou guardar! Assim fico mais perto do meu sonho.", focus: "save-leo", scene: "save" },
-    { speaker: "Narrador", text: "Léo colocou a moedinha no porquinho azul com muito cuidado.", focus: "save-coin", scene: "save" },
-    { speaker: "Narrador", text: "Guardar um pouco de cada vez é uma forma inteligente de fazer sonhos crescerem.", focus: "save-room", scene: "save" }
+    { speaker: "Léo", text: "Vou guardar! Assim fico mais perto do meu sonho.", focus: "save-main", scene: "save" },
+    { speaker: "Narrador", text: "Léo colocou a moedinha no porquinho azul com muito cuidado.", focus: "save-main", scene: "save" },
+    { speaker: "Narrador", text: "Guardar um pouco de cada vez é uma forma inteligente de fazer sonhos crescerem.", focus: "save-soft", scene: "save" }
   ],
   spend: [
-    { speaker: "Léo", text: "Vou sair do quarto e gastar essa moedinha!", focus: "spend-leo", scene: "spend" },
-    { speaker: "Narrador", text: "Léo saiu animado, pensando no que poderia comprar naquele momento.", focus: "spend-door", scene: "spend" },
-    { speaker: "Narrador", text: "Mas gastar agora pode afastar um pouquinho os sonhos maiores.", focus: "spend-coin", scene: "spend" }
+    { speaker: "Léo", text: "Vou sair do quarto e gastar essa moedinha!", focus: "spend-main", scene: "spend" },
+    { speaker: "Narrador", text: "Léo saiu animado, pensando no que poderia comprar naquele momento.", focus: "spend-main", scene: "spend" },
+    { speaker: "Narrador", text: "Mas gastar agora pode afastar um pouquinho os sonhos maiores.", focus: "spend-soft", scene: "spend" }
   ]
 };
 
 const camera: Record<string, { x: number; y: number; scale: number; glowX: number; glowY: number }> = {
-  room: { x: 0, y: 0, scale: 1, glowX: 56, glowY: 58 },
-  leo: { x: -6, y: -4, scale: 1.12, glowX: 47, glowY: 50 },
-  coin: { x: -10, y: -5, scale: 1.18, glowX: 58, glowY: 58 },
-  choice: { x: -10, y: -5, scale: 1.18, glowX: 58, glowY: 58 },
-  "save-leo": { x: -2, y: -3, scale: 1.1, glowX: 48, glowY: 49 },
-  "save-coin": { x: -8, y: -7, scale: 1.2, glowX: 58, glowY: 56 },
-  "save-room": { x: 0, y: 0, scale: 1, glowX: 58, glowY: 56 },
-  "spend-leo": { x: -7, y: -3, scale: 1.1, glowX: 72, glowY: 46 },
-  "spend-door": { x: -12, y: -4, scale: 1.15, glowX: 78, glowY: 45 },
-  "spend-coin": { x: -10, y: -4, scale: 1.17, glowX: 75, glowY: 45 }
+  "wide-room": { x: 0, y: 0, scale: 1, glowX: 55, glowY: 54 },
+  "sunny-room": { x: 2, y: 1, scale: 1.04, glowX: 18, glowY: 26 },
+  "leo-bed": { x: -4, y: -2, scale: 1.08, glowX: 47, glowY: 50 },
+  "coin-close": { x: -9, y: -4, scale: 1.15, glowX: 58, glowY: 58 },
+  "save-main": { x: -3, y: -3, scale: 1.1, glowX: 55, glowY: 55 },
+  "save-soft": { x: -2, y: -2, scale: 1.07, glowX: 57, glowY: 55 },
+  "spend-main": { x: -8, y: -3, scale: 1.1, glowX: 74, glowY: 45 },
+  "spend-soft": { x: -7, y: -3, scale: 1.08, glowX: 76, glowY: 45 }
 };
 
 export function GameCanvasReal() {
@@ -64,9 +64,9 @@ export function GameCanvasReal() {
 
   const steps = useMemo(() => (branch ? [...intro, ...endings[branch]] : intro), [branch]);
   const step = steps[index] ?? steps[steps.length - 1];
-  const isChoice = step.focus === "choice" && !branch;
+  const isChoice = step.focus === "coin-close" && !branch && index === intro.length - 1;
   const isLast = index >= steps.length - 1;
-  const cam = camera[step.focus] ?? camera.room;
+  const cam = camera[step.focus] ?? camera["wide-room"];
   const transitionMs = transitionKind === "spend" ? 1150 : 900;
 
   function next() {
@@ -128,7 +128,7 @@ export function GameCanvasReal() {
                 opacity: transitioning ? 0.92 : 1,
                 transform: `translate(${cam.x}%, ${cam.y}%) scale(${transitioning ? Math.max(1.02, cam.scale * 1.02) : cam.scale})`,
                 transformOrigin: "center center",
-                transition: `transform 1.45s ease-in-out, opacity ${transitionMs}ms ease-in-out, filter ${transitionMs}ms ease-in-out`,
+                transition: `transform 1.9s ease-in-out, opacity ${transitionMs}ms ease-in-out, filter ${transitionMs}ms ease-in-out`,
                 filter: transitioning ? "blur(2px) brightness(0.82)" : "blur(0) brightness(1)"
               }}
             />
@@ -156,7 +156,7 @@ export function GameCanvasReal() {
               />
             )}
 
-            <div style={{ position: "absolute", left: `${cam.glowX}%`, top: `${cam.glowY}%`, width: 120, height: 120, borderRadius: 999, background: "rgba(255, 242, 160, 0.34)", filter: "blur(10px)", opacity: transitioning ? 0.35 : 1, transform: "translate(-50%, -50%)", transition: "left 1.3s ease, top 1.3s ease, opacity 0.45s ease" }} />
+            <div style={{ position: "absolute", left: `${cam.glowX}%`, top: `${cam.glowY}%`, width: 120, height: 120, borderRadius: 999, background: "rgba(255, 242, 160, 0.34)", filter: "blur(10px)", opacity: transitioning ? 0.35 : 1, transform: "translate(-50%, -50%)", transition: "left 1.9s ease, top 1.9s ease, opacity 0.45s ease" }} />
             <div
               aria-hidden="true"
               style={{
@@ -195,7 +195,7 @@ export function GameCanvasReal() {
               <div className={styles.startCard}>
                 <span>Uma história interativa</span>
                 <h2>A Moedinha de Léo</h2>
-                <p>Escolha se Léo vai guardar ou gastar a moedinha.</p>
+                <p>Um dia ensolarado, uma moedinha e uma escolha importante.</p>
                 <button onClick={next}>Iniciar jornada</button>
               </div>
             </div>
