@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import styles from "./GameCanvas.module.css";
 
 type Branch = "save" | "spend";
@@ -9,9 +9,9 @@ type Step = { speaker: string; text: string; focus: string; scene: SceneKey };
 type Camera = { x: number; y: number; scale: number; glowX: number; glowY: number };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=crossfade-intro-1",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=crossfade-spend-1",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=crossfade-save-1"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=model-transition-intro-1",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=model-transition-spend-1",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=model-transition-save-1"
 };
 
 const intro: Step[] = [
@@ -45,35 +45,24 @@ const camera: Record<string, Camera> = {
   "spend-main": { x: -8, y: -3, scale: 1.08, glowX: 74, glowY: 45 }
 };
 
-function playSoftMorningTone(context: AudioContext, output: GainNode) {
-  const now = context.currentTime;
-  const osc = context.createOscillator();
-  const gain = context.createGain();
-  osc.type = "sine";
-  osc.frequency.setValueAtTime(620 + Math.random() * 90, now);
-  osc.frequency.exponentialRampToValueAtTime(760 + Math.random() * 80, now + 0.9);
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.012, now + 0.25);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
-  osc.connect(gain).connect(output);
-  osc.start(now);
-  osc.stop(now + 1.7);
+const CROSSFADE_MS = 1200;
+
+function cameraTransform(cam: Camera) {
+  return `translate(${cam.x}%, ${cam.y}%) scale(${cam.scale})`;
 }
 
 export function GameCanvasReal() {
   const [started, setStarted] = useState(false);
   const [cinematicIntro, setCinematicIntro] = useState(false);
-  const [introSettled, setIntroSettled] = useState(false);
+  const [introMoveStarted, setIntroMoveStarted] = useState(false);
   const [index, setIndex] = useState(0);
   const [branch, setBranch] = useState<Branch | null>(null);
   const [displayScene, setDisplayScene] = useState<SceneKey>("intro");
+  const [transitioning, setTransitioning] = useState(false);
   const [incomingScene, setIncomingScene] = useState<SceneKey | null>(null);
   const [incomingVisible, setIncomingVisible] = useState(false);
-  const [transitioning, setTransitioning] = useState(false);
-  const [lockedCamera, setLockedCamera] = useState<Camera | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const audioGainRef = useRef<GainNode | null>(null);
-  const soundTimerRef = useRef<number | null>(null);
+  const [outgoingCamera, setOutgoingCamera] = useState<Camera | null>(null);
+  const [incomingCamera, setIncomingCamera] = useState<Camera | null>(null);
 
   const steps = useMemo(() => (branch ? [...intro, ...endings[branch]] : intro), [branch]);
   const step = steps[index] ?? steps[steps.length - 1];
@@ -81,50 +70,17 @@ export function GameCanvasReal() {
   const isLast = index >= steps.length - 1;
 
   const normalCam = camera[step.focus] ?? camera["far-room"];
-  const introCam = introSettled ? camera["sunny-room"] : camera["far-room"];
-  const cam = lockedCamera ?? (cinematicIntro ? introCam : started ? normalCam : camera["far-room"]);
-
-  useEffect(() => {
-    return () => stopMorningSound();
-  }, []);
-
-  function startMorningSound() {
-    if (audioContextRef.current) return;
-    try {
-      const AudioContextClass = window.AudioContext || (window as Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const context = new AudioContextClass();
-      const gain = context.createGain();
-      gain.gain.setValueAtTime(0.08, context.currentTime);
-      gain.connect(context.destination);
-      audioContextRef.current = context;
-      audioGainRef.current = gain;
-      window.setTimeout(() => playSoftMorningTone(context, gain), 600);
-      soundTimerRef.current = window.setInterval(() => {
-        if (audioContextRef.current && audioGainRef.current) playSoftMorningTone(audioContextRef.current, audioGainRef.current);
-      }, 4200);
-    } catch {
-      audioContextRef.current = null;
-      audioGainRef.current = null;
-    }
-  }
-
-  function stopMorningSound() {
-    if (soundTimerRef.current !== null) {
-      window.clearInterval(soundTimerRef.current);
-      soundTimerRef.current = null;
-    }
-    audioGainRef.current = null;
-    audioContextRef.current?.close();
-    audioContextRef.current = null;
-  }
+  const introCam = introMoveStarted ? camera["sunny-room"] : camera["far-room"];
+  const activeCamera = cinematicIntro ? introCam : started ? normalCam : camera["far-room"];
+  const baseCamera = outgoingCamera ?? activeCamera;
+  const nextCamera = incomingCamera ?? activeCamera;
+  const shouldHideDialogue = !started || cinematicIntro || transitioning;
 
   function startStory() {
     setStarted(true);
     setCinematicIntro(true);
-    setIntroSettled(false);
-    startMorningSound();
-    window.setTimeout(() => setIntroSettled(true), 2000);
+    setIntroMoveStarted(false);
+    window.setTimeout(() => setIntroMoveStarted(true), 2000);
     window.setTimeout(() => setCinematicIntro(false), 5600);
   }
 
@@ -137,56 +93,45 @@ export function GameCanvasReal() {
     setIndex((current) => Math.min(current + 1, steps.length - 1));
   }
 
+  function finishTransition(targetScene: SceneKey, targetBranch: Branch | null, targetIndex: number) {
+    setDisplayScene(targetScene);
+    setBranch(targetBranch);
+    setIndex(targetIndex);
+    setIncomingVisible(false);
+    setIncomingScene(null);
+    setTransitioning(false);
+    setOutgoingCamera(null);
+    setIncomingCamera(null);
+  }
+
   function restart() {
     if (transitioning) return;
-    const target = camera["far-room"];
-    setLockedCamera(target);
+    const targetCam = camera["far-room"];
+    setOutgoingCamera(activeCamera);
+    setIncomingCamera(targetCam);
     setIncomingScene("intro");
     setIncomingVisible(false);
     setTransitioning(true);
-
-    window.setTimeout(() => setIncomingVisible(true), 60);
+    window.setTimeout(() => setIncomingVisible(true), 40);
     window.setTimeout(() => {
       setStarted(false);
       setCinematicIntro(false);
-      setIntroSettled(false);
-      setIndex(0);
-      setBranch(null);
-      setDisplayScene("intro");
-      stopMorningSound();
-    }, 1050);
-    window.setTimeout(() => {
-      setIncomingScene(null);
-      setIncomingVisible(false);
-      setTransitioning(false);
-      setLockedCamera(null);
-    }, 1250);
+      setIntroMoveStarted(false);
+      finishTransition("intro", null, 0);
+    }, CROSSFADE_MS + 80);
   }
 
   function choose(nextBranch: Branch) {
     if (transitioning) return;
-    const target = nextBranch === "save" ? camera["save-main"] : camera["spend-main"];
-    setLockedCamera(target);
+    const targetCam = nextBranch === "save" ? camera["save-main"] : camera["spend-main"];
+    setOutgoingCamera(activeCamera);
+    setIncomingCamera(targetCam);
     setIncomingScene(nextBranch);
     setIncomingVisible(false);
     setTransitioning(true);
-
-    window.setTimeout(() => setIncomingVisible(true), 60);
-    window.setTimeout(() => {
-      setDisplayScene(nextBranch);
-      setBranch(nextBranch);
-      setIndex(intro.length);
-    }, 1100);
-    window.setTimeout(() => {
-      setIncomingScene(null);
-      setIncomingVisible(false);
-      setTransitioning(false);
-      setLockedCamera(null);
-    }, 1320);
+    window.setTimeout(() => setIncomingVisible(true), 40);
+    window.setTimeout(() => finishTransition(nextBranch, nextBranch, intro.length), CROSSFADE_MS + 80);
   }
-
-  const shouldHideDialogue = !started || cinematicIntro || transitioning;
-  const imageTransform = `translate(${cam.x}%, ${cam.y}%) scale(${cam.scale})`;
 
   return (
     <main className={styles.page}>
@@ -203,9 +148,11 @@ export function GameCanvasReal() {
                 height: "100%",
                 objectFit: "cover",
                 opacity: incomingVisible ? 0 : 1,
-                transform: imageTransform,
+                transform: cameraTransform(baseCamera),
                 transformOrigin: "center center",
-                transition: transitioning ? "opacity 1.05s ease-in-out" : "transform 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.05s ease-in-out"
+                transition: transitioning
+                  ? `opacity ${CROSSFADE_MS}ms ease-in-out`
+                  : "transform 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease-in-out"
               }}
             />
 
@@ -220,14 +167,14 @@ export function GameCanvasReal() {
                   height: "100%",
                   objectFit: "cover",
                   opacity: incomingVisible ? 1 : 0,
-                  transform: imageTransform,
+                  transform: cameraTransform(nextCamera),
                   transformOrigin: "center center",
-                  transition: "opacity 1.05s ease-in-out"
+                  transition: `opacity ${CROSSFADE_MS}ms ease-in-out`
                 }}
               />
             )}
 
-            <div style={{ position: "absolute", left: `${cam.glowX}%`, top: `${cam.glowY}%`, width: 150, height: 150, borderRadius: 999, background: "rgba(255, 239, 143, 0.3)", filter: "blur(14px)", opacity: transitioning ? 0.22 : 1, transform: "translate(-50%, -50%)", transition: transitioning ? "opacity 0.5s ease" : "left 3.6s cubic-bezier(0.22, 1, 0.36, 1), top 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease" }} />
+            <div style={{ position: "absolute", left: `${baseCamera.glowX}%`, top: `${baseCamera.glowY}%`, width: 150, height: 150, borderRadius: 999, background: "rgba(255, 239, 143, 0.3)", filter: "blur(14px)", opacity: transitioning ? 0.3 : 1, transform: "translate(-50%, -50%)", transition: transitioning ? `opacity ${CROSSFADE_MS}ms ease-in-out` : "left 3.6s cubic-bezier(0.22, 1, 0.36, 1), top 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease" }} />
           </div>
 
           <div className={styles.cinematicFade} />
