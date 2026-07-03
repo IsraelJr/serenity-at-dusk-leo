@@ -14,9 +14,9 @@ type Step = {
 };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=real-upload-3",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=spend-2",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=save-2"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=real-upload-4",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=spend-3",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=save-3"
 };
 
 const intro: Step[] = [
@@ -47,9 +47,9 @@ const camera: Record<string, { x: number; y: number; scale: number; glowX: numbe
   "save-leo": { x: -2, y: -3, scale: 1.1, glowX: 48, glowY: 49 },
   "save-coin": { x: -8, y: -7, scale: 1.2, glowX: 58, glowY: 56 },
   "save-room": { x: 0, y: 0, scale: 1, glowX: 58, glowY: 56 },
-  "spend-leo": { x: -8, y: -4, scale: 1.13, glowX: 72, glowY: 46 },
-  "spend-door": { x: -13, y: -5, scale: 1.18, glowX: 78, glowY: 45 },
-  "spend-coin": { x: -11, y: -5, scale: 1.2, glowX: 75, glowY: 45 }
+  "spend-leo": { x: -7, y: -3, scale: 1.1, glowX: 72, glowY: 46 },
+  "spend-door": { x: -12, y: -4, scale: 1.15, glowX: 78, glowY: 45 },
+  "spend-coin": { x: -10, y: -4, scale: 1.17, glowX: 75, glowY: 45 }
 };
 
 export function GameCanvasReal() {
@@ -57,13 +57,17 @@ export function GameCanvasReal() {
   const [index, setIndex] = useState(0);
   const [branch, setBranch] = useState<Branch | null>(null);
   const [transitioning, setTransitioning] = useState(false);
+  const [displayScene, setDisplayScene] = useState<SceneKey>("intro");
+  const [incomingScene, setIncomingScene] = useState<SceneKey | null>(null);
+  const [incomingVisible, setIncomingVisible] = useState(false);
+  const [transitionKind, setTransitionKind] = useState<Branch | "restart" | null>(null);
 
   const steps = useMemo(() => (branch ? [...intro, ...endings[branch]] : intro), [branch]);
   const step = steps[index] ?? steps[steps.length - 1];
   const isChoice = step.focus === "choice" && !branch;
   const isLast = index >= steps.length - 1;
   const cam = camera[step.focus] ?? camera.room;
-  const sceneImage = scenes[step.scene];
+  const transitionMs = transitionKind === "spend" ? 1150 : 900;
 
   function next() {
     if (!started) {
@@ -74,56 +78,96 @@ export function GameCanvasReal() {
   }
 
   function restart() {
+    setTransitionKind("restart");
+    setIncomingScene("intro");
     setTransitioning(true);
+    window.setTimeout(() => setIncomingVisible(true), 40);
     window.setTimeout(() => {
       setStarted(false);
       setIndex(0);
       setBranch(null);
-    }, 320);
-    window.setTimeout(() => setTransitioning(false), 720);
+      setDisplayScene("intro");
+      setIncomingScene(null);
+      setIncomingVisible(false);
+      setTransitioning(false);
+      setTransitionKind(null);
+    }, 820);
   }
 
   function choose(nextBranch: Branch) {
+    setTransitionKind(nextBranch);
+    setIncomingScene(nextBranch);
+    setIncomingVisible(false);
     setTransitioning(true);
+    window.setTimeout(() => setIncomingVisible(true), 40);
     window.setTimeout(() => {
       setBranch(nextBranch);
       setIndex(intro.length);
-    }, 420);
-    window.setTimeout(() => setTransitioning(false), 920);
+      setDisplayScene(nextBranch);
+      setIncomingScene(null);
+      setIncomingVisible(false);
+      setTransitioning(false);
+      setTransitionKind(null);
+    }, nextBranch === "spend" ? 1180 : 920);
   }
 
   return (
     <main className={styles.page}>
       <section className={styles.shell}>
         <div className={styles.gameWindow}>
-          <div className={styles.canvasWrap} style={{ position: "relative", overflow: "hidden" }}>
+          <div className={styles.canvasWrap} style={{ position: "relative", overflow: "hidden", background: "#081a3b" }}>
             <img
-              key={sceneImage}
-              src={sceneImage}
-              alt="Cena da história do Léo"
+              src={scenes[displayScene]}
+              alt="Cena atual da história do Léo"
               style={{
                 position: "absolute",
                 inset: 0,
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                opacity: transitioning ? 0.35 : 1,
-                transform: `translate(${cam.x}%, ${cam.y}%) scale(${cam.scale})`,
+                opacity: transitioning ? 0.92 : 1,
+                transform: `translate(${cam.x}%, ${cam.y}%) scale(${transitioning ? Math.max(1.02, cam.scale * 1.02) : cam.scale})`,
                 transformOrigin: "center center",
-                transition: "transform 1.3s ease-in-out, opacity 0.42s ease-in-out, filter 0.42s ease-in-out",
-                filter: transitioning ? "blur(6px) brightness(0.65)" : "blur(0) brightness(1)"
+                transition: `transform 1.45s ease-in-out, opacity ${transitionMs}ms ease-in-out, filter ${transitionMs}ms ease-in-out`,
+                filter: transitioning ? "blur(2px) brightness(0.82)" : "blur(0) brightness(1)"
               }}
             />
-            <div style={{ position: "absolute", left: `${cam.glowX}%`, top: `${cam.glowY}%`, width: 120, height: 120, borderRadius: 999, background: "rgba(255, 242, 160, 0.34)", filter: "blur(10px)", opacity: transitioning ? 0 : 1, transform: "translate(-50%, -50%)", transition: "left 1.3s ease, top 1.3s ease, opacity 0.35s ease" }} />
+
+            {incomingScene && (
+              <img
+                src={scenes[incomingScene]}
+                alt="Próxima cena da história do Léo"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  opacity: incomingVisible ? 1 : 0,
+                  transform: incomingVisible
+                    ? "translate(0%, 0%) scale(1)"
+                    : transitionKind === "spend"
+                      ? "translate(3%, 0%) scale(1.04)"
+                      : "translate(0%, 1%) scale(1.04)",
+                  transformOrigin: "center center",
+                  transition: `opacity ${transitionMs}ms ease-in-out, transform ${transitionMs}ms ease-in-out, filter ${transitionMs}ms ease-in-out`,
+                  filter: incomingVisible ? "blur(0) brightness(1)" : "blur(5px) brightness(0.7)"
+                }}
+              />
+            )}
+
+            <div style={{ position: "absolute", left: `${cam.glowX}%`, top: `${cam.glowY}%`, width: 120, height: 120, borderRadius: 999, background: "rgba(255, 242, 160, 0.34)", filter: "blur(10px)", opacity: transitioning ? 0.35 : 1, transform: "translate(-50%, -50%)", transition: "left 1.3s ease, top 1.3s ease, opacity 0.45s ease" }} />
             <div
               aria-hidden="true"
               style={{
                 position: "absolute",
                 inset: 0,
                 pointerEvents: "none",
-                background: "radial-gradient(circle at center, rgba(255,210,63,0.18), rgba(3,10,28,0.88))",
+                background: transitionKind === "spend"
+                  ? "linear-gradient(90deg, rgba(255,205,95,0.22), rgba(3,10,28,0.46), rgba(255,205,95,0.15))"
+                  : "radial-gradient(circle at center, rgba(255,230,130,0.22), rgba(3,10,28,0.48))",
                 opacity: transitioning ? 1 : 0,
-                transition: "opacity 0.42s ease-in-out"
+                transition: `opacity ${transitionMs}ms ease-in-out`
               }}
             />
           </div>
@@ -156,6 +200,12 @@ export function GameCanvasReal() {
               </div>
             </div>
           )}
+
+          <div aria-hidden="true" style={{ display: "none" }}>
+            <img src={scenes.intro} alt="" />
+            <img src={scenes.save} alt="" />
+            <img src={scenes.spend} alt="" />
+          </div>
         </div>
       </section>
     </main>
