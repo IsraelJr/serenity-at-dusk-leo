@@ -17,7 +17,7 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: end;
+  align-items: flex-end;
   gap: 20px;
   padding: 0 4px;
 }
@@ -153,7 +153,7 @@
 @media (max-width: 720px) {
   .page { padding: 0; }
   .shell { width: 100%; min-height: 100dvh; gap: 0; }
-  .header { padding: 12px; align-items: start; }
+  .header { padding: 12px; align-items: flex-start; }
   .header span { display: none; }
   .gameWindow { border-radius: 0; border-left: 0; border-right: 0; }
   .dialogueBox { border-radius: 0; min-height: 178px; padding: 15px 70px 16px 14px; }
