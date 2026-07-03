@@ -79,7 +79,9 @@ export function GameCanvas() {
   }, [step.focus]);
 
   useEffect(() => {
-    return () => soundRef.current?.stop();
+    return () => {
+      soundRef.current?.stop();
+    };
   }, []);
 
   function start() {
