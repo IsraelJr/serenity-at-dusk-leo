@@ -183,8 +183,7 @@
     0 18px 46px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
-  opacity: 0;
-  animation: dialogueEnter 0.75s ease 0.2s forwards;
+  opacity: 1;
 }
 .dialogueVisible {
   opacity: 1;
@@ -207,7 +206,6 @@
   font-size: clamp(1.03rem, 2.2vw, 1.32rem);
   line-height: 1.42;
   font-weight: 820;
-  animation: textPop 0.35s ease both;
 }
 .nextButton {
   position: absolute;
@@ -220,7 +218,6 @@
   background: linear-gradient(180deg, #ffe482, #ffd23f);
   font-size: 1.35rem;
   box-shadow: 0 10px 24px rgba(255, 210, 63, 0.26);
-  animation: arrowPulse 1.6s ease-in-out infinite;
 }
 .choices {
   display: grid;
@@ -239,18 +236,6 @@
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-@keyframes dialogueEnter {
-  from { opacity: 0; transform: translate(-50%, 18px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-@keyframes textPop {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes arrowPulse {
-  0%, 100% { transform: translateY(0); box-shadow: 0 10px 24px rgba(255, 210, 63, 0.22); }
-  50% { transform: translateY(-3px); box-shadow: 0 16px 30px rgba(255, 210, 63, 0.36); }
 }
 @keyframes dustFloat {
   from { transform: translate3d(0, 18px, 0); opacity: 0; }
