@@ -2,7 +2,7 @@
 
 import { Container, Graphics, Sprite, Stage } from "@pixi/react";
 import { BlurFilter } from "pixi.js";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { Howl } from "howler";
 import styles from "./GameCanvas.module.css";
@@ -59,12 +59,26 @@ export function GameCanvas() {
   const [stepIndex, setStepIndex] = useState(0);
   const [started, setStarted] = useState(false);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+  const [muted, setMuted] = useState(false);
   const camera = useRef({ x: 0, y: 0, scale: 1 });
   const [, forceRender] = useState(0);
   const soundRef = useRef<Howl | null>(null);
 
   const step = steps[stepIndex];
   const isChoiceStep = step.id === "choice";
+
+  const dust = useMemo(
+    () =>
+      Array.from({ length: 42 }, (_, index) => ({
+        id: index,
+        left: 6 + ((index * 37) % 88),
+        top: 7 + ((index * 53) % 70),
+        size: 2 + (index % 5),
+        delay: (index % 9) * 0.45,
+        duration: 5.5 + (index % 6) * 0.45
+      })),
+    []
+  );
 
   useEffect(() => {
     const target = focusMap[step.focus];
@@ -84,6 +98,10 @@ export function GameCanvas() {
     };
   }, []);
 
+  useEffect(() => {
+    if (soundRef.current) soundRef.current.mute(muted);
+  }, [muted]);
+
   function start() {
     setStarted(true);
     try {
@@ -94,6 +112,7 @@ export function GameCanvas() {
         html5: true
       });
       soundRef.current.play();
+      soundRef.current.mute(muted);
     } catch {
       soundRef.current = null;
     }
@@ -108,6 +127,14 @@ export function GameCanvas() {
     setStepIndex((current) => Math.min(current + 1, steps.length - 1));
   }
 
+  function restart() {
+    setStepIndex(0);
+    setSelectedChoice(null);
+    setStarted(false);
+    soundRef.current?.stop();
+    soundRef.current = null;
+  }
+
   function choose(choice: string) {
     setSelectedChoice(choice);
   }
@@ -115,14 +142,6 @@ export function GameCanvas() {
   return (
     <main className={styles.page}>
       <section className={styles.shell}>
-        <header className={styles.header}>
-          <div>
-            <p>Visual novel infantil</p>
-            <h1>Serenity at Dusk do Léo</h1>
-          </div>
-          <span>Fase 1.6 — Navegável no browser</span>
-        </header>
-
         <div className={styles.gameWindow}>
           <div className={styles.canvasWrap}>
             <Stage width={960} height={540} options={{ backgroundColor: 0x071c45, antialias: true }}>
@@ -134,8 +153,9 @@ export function GameCanvas() {
                     filters={[new BlurFilter(4)]}
                     draw={(g) => {
                       g.clear();
-                      g.beginFill(0xfff2a0, 0.32);
-                      g.drawCircle(0, 0, 78);
+                      const isFocused = step.focus === "coin" || step.focus === "drawer";
+                      g.beginFill(0xfff2a0, isFocused ? 0.38 : 0.22);
+                      g.drawCircle(0, 0, isFocused ? 92 : 72);
                       g.endFill();
                     }}
                   />
@@ -149,21 +169,26 @@ export function GameCanvas() {
                     }}
                   />
                 </Container>
-
-                <Graphics
-                  draw={(g) => {
-                    g.clear();
-                    for (let i = 0; i < 34; i += 1) {
-                      const x = 72 + ((i * 83) % 820);
-                      const y = 48 + ((i * 51) % 390);
-                      g.beginFill(0xffffff, 0.18);
-                      g.drawCircle(x, y, 1.5 + (i % 3));
-                      g.endFill();
-                    }
-                  }}
-                />
               </Container>
             </Stage>
+          </div>
+
+          <div className={styles.cinematicFade} />
+          <div className={styles.sunRay} />
+          <div className={styles.dustLayer} aria-hidden="true">
+            {dust.map((particle) => (
+              <span
+                key={particle.id}
+                style={{
+                  left: `${particle.left}%`,
+                  top: `${particle.top}%`,
+                  width: `${particle.size}px`,
+                  height: `${particle.size}px`,
+                  animationDelay: `${particle.delay}s`,
+                  animationDuration: `${particle.duration}s`
+                }}
+              />
+            ))}
           </div>
 
           <div className={styles.hudTopLeft}>
@@ -171,13 +196,13 @@ export function GameCanvas() {
           </div>
 
           <div className={styles.hudTopRight}>
-            <button aria-label="Música">♪</button>
-            <button aria-label="Som">◉</button>
+            <button aria-label="Som" onClick={() => setMuted((current) => !current)}>{muted ? "×" : "♪"}</button>
+            <button aria-label="Reiniciar" onClick={restart}>↺</button>
           </div>
 
-          <div className={styles.dialogueBox}>
+          <div className={`${styles.dialogueBox} ${started ? styles.dialogueVisible : ""}`}>
             <div className={styles.namePlate}>{step.speaker}</div>
-            <p>{selectedChoice ? `Léo escolheu: ${selectedChoice}. Essa consequência entra na próxima etapa.` : step.text}</p>
+            <p key={selectedChoice ?? step.id}>{selectedChoice ? `Léo escolheu: ${selectedChoice}. Essa consequência entra na próxima etapa.` : step.text}</p>
 
             {isChoiceStep && !selectedChoice ? (
               <div className={styles.choices}>
@@ -191,9 +216,12 @@ export function GameCanvas() {
 
           {!started && (
             <div className={styles.startOverlay}>
-              <h2>A Moedinha Brilhante</h2>
-              <p>Protótipo navegável para validar ritmo, câmera, texto e interface.</p>
-              <button onClick={start}>Iniciar jornada</button>
+              <div className={styles.startCard}>
+                <span>Uma história interativa</span>
+                <h2>A Moedinha Brilhante</h2>
+                <p>Uma cena jogável para validar atmosfera, câmera, texto, brilho e interface.</p>
+                <button onClick={start}>Iniciar jornada</button>
+              </div>
             </div>
           )}
         </div>
