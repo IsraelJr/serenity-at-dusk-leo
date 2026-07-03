@@ -1,5 +1,5 @@
-import { GameCanvas } from "@/components/GameCanvas";
+import { GameCanvasClient } from "@/components/GameCanvasClient";
 
 export default function Home() {
-  return <GameCanvas />;
+  return <GameCanvasClient />;
 }
