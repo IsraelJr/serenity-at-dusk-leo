@@ -219,26 +219,26 @@ export function GameCanvas() {
             </Stage>
           </div>
 
+          <div className={styles.dialogueBox}>
+            <div className={styles.namePlate}>{step.speaker}</div>
+            <p>{selectedChoice ? `Léo escolheu: ${selectedChoice}. Essa consequência entra na próxima etapa.` : step.text}</p>
+
+            {isChoiceStep && !selectedChoice ? (
+              <div className={styles.choices}>
+                <button onClick={() => choose("guardar para o sonho")}>Guardar para o sonho</button>
+                <button onClick={() => choose("comprar algo agora")}>Comprar algo agora</button>
+              </div>
+            ) : (
+              <button className={styles.nextButton} onClick={next}>{started ? "➜" : "▶"}</button>
+            )}
+          </div>
+
           {!started && (
             <div className={styles.startOverlay}>
               <h2>A Moedinha Brilhante</h2>
               <p>Uma cena teste para validar o clima, a câmera e o ritmo do jogo.</p>
               <button onClick={start}>Iniciar jornada</button>
             </div>
-          )}
-        </div>
-
-        <div className={styles.dialogueBox}>
-          <div className={styles.namePlate}>{step.speaker}</div>
-          <p>{selectedChoice ? `Léo escolheu: ${selectedChoice}. Essa consequência entra na próxima etapa.` : step.text}</p>
-
-          {isChoiceStep && !selectedChoice ? (
-            <div className={styles.choices}>
-              <button onClick={() => choose("guardar para o sonho")}>Guardar para o sonho</button>
-              <button onClick={() => choose("comprar algo agora")}>Comprar algo agora</button>
-            </div>
-          ) : (
-            <button className={styles.nextButton} onClick={next}>{started ? "➜" : "▶"}</button>
           )}
         </div>
       </section>
