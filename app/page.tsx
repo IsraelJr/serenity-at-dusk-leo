@@ -1,5 +1,5 @@
-import { ScenePlayer } from "@/components/ScenePlayer";
+import { GameCanvas } from "@/components/GameCanvas";
 
 export default function Home() {
-  return <ScenePlayer />;
+  return <GameCanvas />;
 }
