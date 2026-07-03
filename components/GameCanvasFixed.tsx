@@ -37,11 +37,11 @@ const branchSteps: Record<BranchKey, DialogueStep[]> = {
 };
 
 const focusMap: Record<FocusTarget, { x: number; y: number; scale: number; glowX: number; glowY: number }> = {
-  room: { x: 0, y: 0, scale: 1, glowX: 56, glowY: 60 },
-  window: { x: 3, y: 1, scale: 1.07, glowX: 16, glowY: 26 },
-  leo: { x: -7, y: -3, scale: 1.12, glowX: 45, glowY: 52 },
-  drawer: { x: -11, y: -4, scale: 1.14, glowX: 57, glowY: 60 },
-  coin: { x: -13, y: -2, scale: 1.18, glowX: 57, glowY: 60 }
+  room: { x: 0, y: 0, scale: 1, glowX: 58, glowY: 45 },
+  window: { x: 3, y: 1, scale: 1.07, glowX: 14, glowY: 20 },
+  leo: { x: -7, y: -3, scale: 1.12, glowX: 48, glowY: 50 },
+  drawer: { x: -11, y: -4, scale: 1.14, glowX: 58, glowY: 45 },
+  coin: { x: -13, y: -2, scale: 1.18, glowX: 58, glowY: 45 }
 };
 
 function playBirdChirp(context: AudioContext, destination: GainNode) {
@@ -162,20 +162,23 @@ export function GameCanvasFixed() {
       <section className={styles.shell}>
         <div className={styles.gameWindow}>
           <div className={styles.canvasWrap} style={{ position: "relative", overflow: "hidden" }}>
-            <img
-              src="/assets/leo-room-scene.svg"
-              alt="Quarto do Léo pela manhã"
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                transform: `translate(${focus.x}%, ${focus.y}%) scale(${focus.scale})`,
-                transformOrigin: "center center",
-                transition: "transform 1.3s ease-in-out"
-              }}
-            />
+            <picture>
+              <source srcSet="/assets/leo-room-scene.jpg?v=real-1" type="image/jpeg" />
+              <img
+                src="/assets/leo-room-scene.jpg?v=real-1"
+                alt="Quarto do Léo pela manhã"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  transform: `translate(${focus.x}%, ${focus.y}%) scale(${focus.scale})`,
+                  transformOrigin: "center center",
+                  transition: "transform 1.3s ease-in-out"
+                }}
+              />
+            </picture>
             <div style={{ position: "absolute", left: `${focus.glowX}%`, top: `${focus.glowY}%`, width: 120, height: 120, borderRadius: 999, background: "rgba(255, 242, 160, 0.34)", filter: "blur(10px)", transform: "translate(-50%, -50%)", transition: "left 1.3s ease, top 1.3s ease" }} />
           </div>
 
