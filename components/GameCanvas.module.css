@@ -190,8 +190,10 @@
   opacity: 1;
 }
 .choiceDialogue {
-  height: 168px;
-  padding: 14px 20px 20px 20px;
+  height: 176px;
+  padding: 14px 20px 18px 20px;
+  display: flex;
+  flex-direction: column;
 }
 .namePlate {
   display: inline-flex;
@@ -204,6 +206,7 @@
   color: #0d2c68;
   box-shadow: 0 7px 18px rgba(0, 0, 0, 0.22);
   font-weight: 950;
+  width: fit-content;
 }
 .phraseText {
   margin: 0;
@@ -238,7 +241,7 @@
   animation: coinBounce 1.55s ease-in-out infinite;
 }
 .coinNextButton::before {
-  content: "¢";
+  content: "$";
   position: absolute;
   inset: 0;
   display: grid;
@@ -258,8 +261,9 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 13px;
-  margin-bottom: 6px;
+  margin-top: auto;
+  margin-bottom: auto;
+  align-items: center;
 }
 .choices button {
   min-height: 40px;
@@ -309,8 +313,8 @@
     border-radius: 18px;
   }
   .choiceDialogue {
-    height: 174px;
-    padding: 12px 14px 18px 14px;
+    height: 176px;
+    padding: 12px 14px 16px 14px;
   }
   .phraseText {
     min-height: 56px;
@@ -330,10 +334,10 @@
     inset: 4px;
   }
   .choices {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 7px;
-    margin-top: 11px;
-    margin-bottom: 7px;
+    margin-top: auto;
+    margin-bottom: auto;
   }
   .choices button {
     min-height: 34px;
