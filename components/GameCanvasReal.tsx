@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styles from "./GameCanvas.module.css";
 
 type Branch = "save" | "spend";
@@ -9,9 +9,9 @@ type Step = { speaker: string; text: string; focus: string; scene: SceneKey };
 type Camera = { x: number; y: number; scale: number; glowX: number; glowY: number };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=first-fade-intro-1",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=first-fade-spend-1",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=first-fade-save-1"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=choices-delay-intro-1",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=choices-delay-spend-1",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=choices-delay-save-1"
 };
 
 const intro: Step[] = [
@@ -63,6 +63,7 @@ export function GameCanvasReal() {
   const [displayScene, setDisplayScene] = useState<SceneKey>("intro");
   const [transitioning, setTransitioning] = useState(false);
   const [phraseChanging, setPhraseChanging] = useState(false);
+  const [choicesVisible, setChoicesVisible] = useState(false);
   const [incomingScene, setIncomingScene] = useState<SceneKey | null>(null);
   const [incomingVisible, setIncomingVisible] = useState(false);
   const [outgoingCamera, setOutgoingCamera] = useState<Camera | null>(null);
@@ -80,6 +81,17 @@ export function GameCanvasReal() {
   const baseCamera = outgoingCamera ?? activeCamera;
   const nextCamera = incomingCamera ?? activeCamera;
   const shouldHideDialogue = !started || cinematicIntro || transitioning;
+
+  useEffect(() => {
+    if (!isChoice || shouldHideDialogue || phraseChanging) {
+      setChoicesVisible(false);
+      return;
+    }
+
+    setChoicesVisible(false);
+    const timer = window.setTimeout(() => setChoicesVisible(true), 1000);
+    return () => window.clearTimeout(timer);
+  }, [isChoice, shouldHideDialogue, phraseChanging, renderedIndex]);
 
   function startStory() {
     setStarted(true);
@@ -119,6 +131,7 @@ export function GameCanvasReal() {
     setRenderedIndex(targetIndex);
     setOutgoingCamera(targetCamera);
     setPhraseChanging(false);
+    setChoicesVisible(false);
 
     window.setTimeout(() => {
       setIncomingVisible(false);
@@ -137,6 +150,7 @@ export function GameCanvasReal() {
     setIncomingScene("intro");
     setIncomingVisible(false);
     setTransitioning(true);
+    setChoicesVisible(false);
     window.setTimeout(() => setIncomingVisible(true), 40);
     window.setTimeout(() => {
       setStarted(false);
@@ -147,18 +161,20 @@ export function GameCanvasReal() {
   }
 
   function choose(nextBranch: Branch) {
-    if (transitioning) return;
+    if (transitioning || !choicesVisible) return;
     const targetCam = nextBranch === "save" ? camera["save-main"] : camera["spend-main"];
     setOutgoingCamera(activeCamera);
     setIncomingCamera(targetCam);
     setIncomingScene(nextBranch);
     setIncomingVisible(false);
     setTransitioning(true);
+    setChoicesVisible(false);
     window.setTimeout(() => setIncomingVisible(true), 40);
     window.setTimeout(() => finishTransition(nextBranch, nextBranch, intro.length, targetCam), CROSSFADE_MS + 80);
   }
 
   const dialogueClassName = `${styles.dialogueBox} ${styles.dialogueVisible} ${isChoice ? styles.choiceDialogue : ""}`;
+  const choicesClassName = `${styles.choices} ${choicesVisible ? styles.choicesVisible : ""}`;
 
   return (
     <main className={styles.page}>
@@ -249,9 +265,9 @@ export function GameCanvasReal() {
               <div className={styles.namePlate}>{renderedStep.speaker}</div>
               <p className={`${styles.phraseText} ${phraseChanging ? styles.phraseChanging : ""}`}>{renderedStep.text}</p>
               {isChoice ? (
-                <div className={styles.choices}>
-                  <button onClick={() => choose("save")}>Guardar para o sonho</button>
-                  <button onClick={() => choose("spend")}>Gastar agora</button>
+                <div className={choicesClassName}>
+                  <button disabled={!choicesVisible} onClick={() => choose("save")}>Guardar para o sonho</button>
+                  <button disabled={!choicesVisible} onClick={() => choose("spend")}>Gastar agora</button>
                 </div>
               ) : (
                 <button aria-label="Próxima fala" className={styles.coinNextButton} onClick={isLast ? restart : next}></button>
