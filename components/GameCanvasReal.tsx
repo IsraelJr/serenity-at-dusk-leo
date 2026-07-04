@@ -9,9 +9,9 @@ type Step = { speaker: string; text: string; focus: string; scene: SceneKey };
 type Camera = { x: number; y: number; scale: number; glowX: number; glowY: number };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=model-transition-intro-2",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=model-transition-spend-2",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=model-transition-save-2"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=model-transition-intro-3",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=model-transition-spend-3",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=model-transition-save-3"
 };
 
 const intro: Step[] = [
@@ -46,7 +46,8 @@ const camera: Record<string, Camera> = {
 };
 
 const CROSSFADE_MS = 1200;
-const PHRASE_FADE_MS = 280;
+const PHRASE_FADE_MS = 240;
+const HANDOFF_HOLD_MS = 140;
 
 function cameraTransform(cam: Camera) {
   return `translate(${cam.x}%, ${cam.y}%) scale(${cam.scale})`;
@@ -111,17 +112,21 @@ export function GameCanvasReal() {
     changePhrase(Math.min(renderedIndex + 1, steps.length - 1));
   }
 
-  function finishTransition(targetScene: SceneKey, targetBranch: Branch | null, targetIndex: number) {
+  function finishTransition(targetScene: SceneKey, targetBranch: Branch | null, targetIndex: number, targetCamera: Camera) {
     setDisplayScene(targetScene);
     setBranch(targetBranch);
     setIndex(targetIndex);
     setRenderedIndex(targetIndex);
-    setIncomingVisible(false);
-    setIncomingScene(null);
-    setTransitioning(false);
-    setOutgoingCamera(null);
-    setIncomingCamera(null);
+    setOutgoingCamera(targetCamera);
     setPhraseChanging(false);
+
+    window.setTimeout(() => {
+      setIncomingVisible(false);
+      setIncomingScene(null);
+      setTransitioning(false);
+      setOutgoingCamera(null);
+      setIncomingCamera(null);
+    }, HANDOFF_HOLD_MS);
   }
 
   function restart() {
@@ -137,7 +142,7 @@ export function GameCanvasReal() {
       setStarted(false);
       setCinematicIntro(false);
       setIntroMoveStarted(false);
-      finishTransition("intro", null, 0);
+      finishTransition("intro", null, 0, targetCam);
     }, CROSSFADE_MS + 80);
   }
 
@@ -150,8 +155,10 @@ export function GameCanvasReal() {
     setIncomingVisible(false);
     setTransitioning(true);
     window.setTimeout(() => setIncomingVisible(true), 40);
-    window.setTimeout(() => finishTransition(nextBranch, nextBranch, intro.length), CROSSFADE_MS + 80);
+    window.setTimeout(() => finishTransition(nextBranch, nextBranch, intro.length, targetCam), CROSSFADE_MS + 80);
   }
+
+  const dialogueClassName = `${styles.dialogueBox} ${styles.dialogueVisible} ${isChoice ? styles.choiceDialogue : ""}`;
 
   return (
     <main className={styles.page}>
@@ -237,9 +244,9 @@ export function GameCanvasReal() {
           <div className={styles.hudTopRight}><button aria-label="Reiniciar" onClick={restart}>↺</button></div>
 
           {!shouldHideDialogue && (
-            <div className={`${styles.dialogueBox} ${styles.dialogueVisible} ${phraseChanging ? styles.dialogueChanging : ""}`}>
+            <div className={dialogueClassName}>
               <div className={styles.namePlate}>{renderedStep.speaker}</div>
-              <p>{renderedStep.text}</p>
+              <p className={`${styles.phraseText} ${phraseChanging ? styles.phraseChanging : ""}`}>{renderedStep.text}</p>
               {isChoice ? (
                 <div className={styles.choices}>
                   <button onClick={() => choose("save")}>Guardar para o sonho</button>
