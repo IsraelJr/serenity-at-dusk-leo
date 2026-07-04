@@ -175,7 +175,7 @@
   width: min(820px, calc(100% - 52px));
   height: 158px;
   box-sizing: border-box;
-  padding: 14px 78px 14px 20px;
+  padding: 14px 64px 14px 20px;
   border-radius: 22px;
   background: rgba(5, 14, 31, 0.5);
   color: white;
@@ -185,14 +185,13 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
   opacity: 1;
-  transition: opacity 0.28s ease, filter 0.28s ease;
 }
 .dialogueVisible {
   opacity: 1;
 }
-.dialogueChanging {
-  opacity: 0;
-  filter: blur(3px);
+.choiceDialogue {
+  height: 168px;
+  padding: 14px 20px 20px 20px;
 }
 .namePlate {
   display: inline-flex;
@@ -206,44 +205,64 @@
   box-shadow: 0 7px 18px rgba(0, 0, 0, 0.22);
   font-weight: 950;
 }
-.dialogueBox p {
+.phraseText {
   margin: 0;
   min-height: 58px;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.44);
   font-size: clamp(1rem, 2.05vw, 1.24rem);
   line-height: 1.36;
   font-weight: 820;
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+  transition: opacity 0.24s ease, filter 0.24s ease, transform 0.24s ease;
+}
+.phraseChanging {
+  opacity: 0;
+  filter: blur(2px);
+  transform: translateY(3px);
 }
 .coinNextButton {
   position: absolute;
-  right: 18px;
-  bottom: 18px;
-  width: 48px;
-  height: 48px;
+  right: 20px;
+  bottom: 20px;
+  width: 34px;
+  height: 34px;
   border-radius: 999px;
   color: transparent;
-  background: radial-gradient(circle at 35% 28%, #fff4ad 0 12%, #ffe482 13% 32%, #ffd23f 33% 68%, #c99012 69% 100%);
-  box-shadow: 0 10px 24px rgba(255, 210, 63, 0.28), inset 0 2px 7px rgba(255,255,255,0.55);
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255,255,255,0.95) 0 7%, transparent 8% 100%),
+    radial-gradient(circle at 50% 50%, #ffe98d 0 42%, #ffd23f 43% 68%, #c88b0f 69% 100%);
+  border: 2px solid #f5c22f;
+  box-shadow: 0 8px 18px rgba(255, 210, 63, 0.26), inset 0 1px 5px rgba(255,255,255,0.5);
   animation: coinBounce 1.55s ease-in-out infinite;
 }
 .coinNextButton::before {
-  content: "$";
+  content: "¢";
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  color: rgba(98, 63, 0, 0.7);
-  font-size: 1.15rem;
+  color: rgba(95, 61, 0, 0.72);
+  font-size: 1rem;
   font-weight: 950;
+}
+.coinNextButton::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 999px;
+  border: 1px solid rgba(128, 82, 0, 0.28);
 }
 .choices {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 13px;
+  margin-bottom: 6px;
 }
 .choices button {
-  min-height: 38px;
+  min-height: 40px;
   padding: 8px 10px;
   border-radius: 13px;
   color: #0d2c68;
@@ -257,8 +276,8 @@
   to { opacity: 1; }
 }
 @keyframes coinBounce {
-  0%, 100% { transform: translateY(0) rotate(-5deg); box-shadow: 0 10px 24px rgba(255, 210, 63, 0.24), inset 0 2px 7px rgba(255,255,255,0.55); }
-  45% { transform: translateY(-7px) rotate(6deg); box-shadow: 0 17px 30px rgba(255, 210, 63, 0.36), inset 0 2px 7px rgba(255,255,255,0.55); }
+  0%, 100% { transform: translateY(0) rotate(-4deg); box-shadow: 0 8px 18px rgba(255, 210, 63, 0.24), inset 0 1px 5px rgba(255,255,255,0.5); }
+  45% { transform: translateY(-5px) rotate(5deg); box-shadow: 0 13px 22px rgba(255, 210, 63, 0.34), inset 0 1px 5px rgba(255,255,255,0.5); }
   70% { transform: translateY(1px) rotate(-2deg); }
 }
 @keyframes dustFloat {
@@ -286,28 +305,39 @@
     width: calc(100% - 24px);
     bottom: 12px;
     height: 164px;
-    padding: 12px 60px 12px 14px;
+    padding: 12px 54px 12px 14px;
     border-radius: 18px;
   }
-  .dialogueBox p {
+  .choiceDialogue {
+    height: 174px;
+    padding: 12px 14px 18px 14px;
+  }
+  .phraseText {
     min-height: 56px;
     font-size: 0.98rem;
     line-height: 1.32;
   }
   .coinNextButton {
-    right: 14px;
-    bottom: 14px;
-    width: 42px;
-    height: 42px;
+    right: 15px;
+    bottom: 16px;
+    width: 31px;
+    height: 31px;
+  }
+  .coinNextButton::before {
+    font-size: 0.9rem;
+  }
+  .coinNextButton::after {
+    inset: 4px;
   }
   .choices {
     grid-template-columns: 1fr;
-    gap: 6px;
-    margin-top: 7px;
+    gap: 7px;
+    margin-top: 11px;
+    margin-bottom: 7px;
   }
   .choices button {
-    min-height: 32px;
-    padding: 6px 8px;
+    min-height: 34px;
+    padding: 7px 8px;
     font-size: 0.82rem;
   }
 }
