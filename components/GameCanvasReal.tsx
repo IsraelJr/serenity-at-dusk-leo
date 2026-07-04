@@ -9,9 +9,9 @@ type Step = { speaker: string; text: string; focus: string; scene: SceneKey };
 type Camera = { x: number; y: number; scale: number; glowX: number; glowY: number };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=model-transition-intro-3",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=model-transition-spend-3",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=model-transition-save-3"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=model-transition-intro-4",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=model-transition-spend-4",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=model-transition-save-4"
 };
 
 const intro: Step[] = [
@@ -46,7 +46,7 @@ const camera: Record<string, Camera> = {
 };
 
 const CROSSFADE_MS = 1200;
-const PHRASE_FADE_MS = 240;
+const PHRASE_FADE_MS = 460;
 const HANDOFF_HOLD_MS = 140;
 
 function cameraTransform(cam: Camera) {
@@ -253,7 +253,7 @@ export function GameCanvasReal() {
                   <button onClick={() => choose("spend")}>Gastar agora</button>
                 </div>
               ) : (
-                <button aria-label="Próxima fala" className={styles.coinNextButton} onClick={isLast ? restart : next}>●</button>
+                <button aria-label="Próxima fala" className={styles.coinNextButton} onClick={isLast ? restart : next}></button>
               )}
             </div>
           )}
