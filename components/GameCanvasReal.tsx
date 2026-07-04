@@ -9,9 +9,9 @@ type Step = { speaker: string; text: string; focus: string; scene: SceneKey };
 type Camera = { x: number; y: number; scale: number; glowX: number; glowY: number };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=single-crossfade-intro-2",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=single-crossfade-spend-2",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=single-crossfade-save-2"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=feather-camera-intro-1",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=feather-camera-spend-1",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=feather-camera-save-1"
 };
 
 const intro: Step[] = [
@@ -50,6 +50,10 @@ const PHRASE_FADE_MS = 460;
 
 function cameraTransform(cam: Camera) {
   return `translate(${cam.x}%, ${cam.y}%) scale(${cam.scale})`;
+}
+
+function cameraObjectFit(cam: Camera) {
+  return cam.scale < 0.75 ? "contain" : "cover";
 }
 
 export function GameCanvasReal() {
@@ -197,9 +201,9 @@ export function GameCanvasReal() {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                filter: "blur(18px) brightness(0.72)",
-                transform: "scale(1.08)",
-                opacity: started && !transitioning && !sceneSettling ? 0.55 : 0,
+                filter: "blur(24px) brightness(0.72) saturate(1.08)",
+                transform: "scale(1.22)",
+                opacity: started && !transitioning && !sceneSettling ? 0.72 : 0,
                 transition: sceneSettling ? "none" : "opacity 900ms ease-in-out"
               }}
             />
@@ -207,12 +211,13 @@ export function GameCanvasReal() {
             <img
               src={scenes[displayScene]}
               alt="Cena atual da história do Léo"
+              className={baseCamera.scale < 0.75 ? styles.featheredSceneImage : undefined}
               style={{
                 position: "absolute",
                 inset: 0,
                 width: "100%",
                 height: "100%",
-                objectFit: baseCamera.scale < 0.75 ? "contain" : "cover",
+                objectFit: cameraObjectFit(baseCamera),
                 opacity: !started ? 0 : incomingVisible ? 0 : 1,
                 transform: cameraTransform(baseCamera),
                 transformOrigin: "center center",
@@ -224,12 +229,13 @@ export function GameCanvasReal() {
               <img
                 src={scenes[incomingScene]}
                 alt="Próxima cena da história do Léo"
+                className={nextCamera.scale < 0.75 ? styles.featheredSceneImage : undefined}
                 style={{
                   position: "absolute",
                   inset: 0,
                   width: "100%",
                   height: "100%",
-                  objectFit: nextCamera.scale < 0.75 ? "contain" : "cover",
+                  objectFit: cameraObjectFit(nextCamera),
                   opacity: incomingVisible ? 1 : 0,
                   transform: cameraTransform(nextCamera),
                   transformOrigin: "center center",
