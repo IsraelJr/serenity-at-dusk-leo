@@ -94,7 +94,10 @@
   color: white;
   backdrop-filter: blur(10px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
+  font-family: Arial, Helvetica, Verdana, sans-serif;
   font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .hudTopLeft span {
   display: inline-flex;
@@ -131,6 +134,7 @@
   color: #ffd23f;
   text-transform: uppercase;
   letter-spacing: 0.12em;
+  font-family: Arial, Helvetica, Verdana, sans-serif;
   font-weight: 950;
   font-size: 0.82rem;
 }
@@ -144,8 +148,11 @@
   margin: 0 auto 24px;
   max-width: 540px;
   color: rgba(255, 255, 255, 0.86);
+  font-family: Arial, Helvetica, Verdana, sans-serif;
   font-size: 1.08rem;
   font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
 }
 .startOverlay button,
 .coinNextButton,
@@ -153,6 +160,7 @@
 .hudTopRight button {
   border: 0;
   cursor: pointer;
+  font-family: Arial, Helvetica, Verdana, sans-serif;
   font-weight: 950;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
@@ -169,6 +177,8 @@
   color: #0d2c68;
   background: linear-gradient(180deg, #ffe482, #ffd23f);
   box-shadow: 0 16px 38px rgba(255, 210, 63, 0.28);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .dialogueBox {
   position: absolute;
@@ -188,6 +198,7 @@
     0 18px 46px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
+  font-family: Arial, Helvetica, Verdana, sans-serif;
   opacity: 1;
 }
 .dialogueVisible {
@@ -209,16 +220,22 @@
   background: linear-gradient(180deg, rgba(255, 228, 130, 0.96), rgba(255, 210, 63, 0.94));
   color: #0d2c68;
   box-shadow: 0 7px 18px rgba(0, 0, 0, 0.22);
+  font-family: Arial, Helvetica, Verdana, sans-serif;
   font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
   width: fit-content;
 }
 .phraseText {
   margin: 0;
   min-height: 42px;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.44);
-  font-size: clamp(0.94rem, 1.85vw, 1.12rem);
-  line-height: 1.3;
-  font-weight: 820;
+  font-family: Arial, Helvetica, Verdana, sans-serif;
+  font-size: clamp(0.9rem, 1.74vw, 1.06rem);
+  line-height: 1.32;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
   opacity: 1;
   filter: blur(0);
   transform: translateY(0);
@@ -288,8 +305,10 @@
   color: #0d2c68;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(255, 210, 63, 0.45);
-  font-size: 0.86rem;
-  line-height: 1.12;
+  font-size: 0.8rem;
+  line-height: 1.13;
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
 }
 .choices button:disabled {
   cursor: default;
@@ -322,7 +341,7 @@
   .hudTopRight { top: 10px; }
   .hudTopLeft { left: 10px; }
   .hudTopRight { right: 10px; }
-  .hudTopLeft span { padding: 0 12px; min-height: 34px; font-size: 0.85rem; }
+  .hudTopLeft span { padding: 0 12px; min-height: 34px; font-size: 0.78rem; }
   .hudTopRight button { width: 34px; min-height: 34px; }
   .dialogueBox {
     width: calc(100% - 24px);
@@ -339,11 +358,13 @@
     min-height: 22px;
     margin-bottom: 4px;
     padding: 3px 9px;
+    font-size: 0.78rem;
   }
   .phraseText {
     min-height: 40px;
-    font-size: 0.9rem;
-    line-height: 1.24;
+    font-size: 0.78rem;
+    line-height: 1.28;
+    letter-spacing: 0.035em;
   }
   .choiceDialogue .phraseText {
     min-height: 32px;
@@ -368,7 +389,8 @@
   }
   .choices button {
     min-height: 30px;
-    padding: 5px 7px;
-    font-size: 0.76rem;
+    padding: 5px 6px;
+    font-size: 0.66rem;
+    letter-spacing: 0.025em;
   }
 }
