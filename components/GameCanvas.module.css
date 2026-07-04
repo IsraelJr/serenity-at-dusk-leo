@@ -170,13 +170,13 @@
   position: absolute;
   z-index: 4;
   left: 50%;
-  bottom: clamp(18px, 5vw, 42px);
+  bottom: clamp(12px, calc(5vw - 6px), 36px);
   transform: translateX(-50%);
   width: min(820px, calc(100% - 52px));
-  height: 158px;
+  height: 119px;
   box-sizing: border-box;
-  padding: 14px 64px 14px 20px;
-  border-radius: 22px;
+  padding: 10px 54px 10px 16px;
+  border-radius: 18px;
   background: rgba(5, 14, 31, 0.5);
   color: white;
   border: 1px solid rgba(255, 210, 63, 0.42);
@@ -190,17 +190,17 @@
   opacity: 1;
 }
 .choiceDialogue {
-  height: 176px;
-  padding: 14px 20px 18px 20px;
+  height: 132px;
+  padding: 10px 16px 12px 16px;
   display: flex;
   flex-direction: column;
 }
 .namePlate {
   display: inline-flex;
   align-items: center;
-  min-height: 27px;
-  margin-bottom: 7px;
-  padding: 4px 12px;
+  min-height: 24px;
+  margin-bottom: 5px;
+  padding: 3px 10px;
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 228, 130, 0.96), rgba(255, 210, 63, 0.94));
   color: #0d2c68;
@@ -210,27 +210,30 @@
 }
 .phraseText {
   margin: 0;
-  min-height: 58px;
+  min-height: 42px;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.44);
-  font-size: clamp(1rem, 2.05vw, 1.24rem);
-  line-height: 1.36;
+  font-size: clamp(0.94rem, 1.85vw, 1.12rem);
+  line-height: 1.3;
   font-weight: 820;
   opacity: 1;
   filter: blur(0);
   transform: translateY(0);
-  transition: opacity 0.24s ease, filter 0.24s ease, transform 0.24s ease;
+  transition: opacity 0.46s ease, filter 0.46s ease, transform 0.46s ease;
+}
+.choiceDialogue .phraseText {
+  min-height: 34px;
 }
 .phraseChanging {
   opacity: 0;
-  filter: blur(2px);
-  transform: translateY(3px);
+  filter: blur(1px);
+  transform: translateY(1px);
 }
 .coinNextButton {
   position: absolute;
-  right: 20px;
-  bottom: 20px;
-  width: 34px;
-  height: 34px;
+  right: 16px;
+  bottom: 14px;
+  width: 30px;
+  height: 30px;
   border-radius: 999px;
   color: transparent;
   background:
@@ -247,33 +250,33 @@
   display: grid;
   place-items: center;
   color: rgba(95, 61, 0, 0.72);
-  font-size: 1rem;
+  font-size: 0.92rem;
   font-weight: 950;
 }
 .coinNextButton::after {
   content: "";
   position: absolute;
-  inset: 5px;
+  inset: 4px;
   border-radius: 999px;
   border: 1px solid rgba(128, 82, 0, 0.28);
 }
 .choices {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
   margin-top: auto;
   margin-bottom: auto;
   align-items: center;
 }
 .choices button {
-  min-height: 40px;
-  padding: 8px 10px;
-  border-radius: 13px;
+  min-height: 34px;
+  padding: 6px 9px;
+  border-radius: 12px;
   color: #0d2c68;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(255, 210, 63, 0.45);
-  font-size: 0.9rem;
-  line-height: 1.15;
+  font-size: 0.86rem;
+  line-height: 1.12;
 }
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -281,7 +284,7 @@
 }
 @keyframes coinBounce {
   0%, 100% { transform: translateY(0) rotate(-4deg); box-shadow: 0 8px 18px rgba(255, 210, 63, 0.24), inset 0 1px 5px rgba(255,255,255,0.5); }
-  45% { transform: translateY(-5px) rotate(5deg); box-shadow: 0 13px 22px rgba(255, 210, 63, 0.34), inset 0 1px 5px rgba(255,255,255,0.5); }
+  45% { transform: translateY(-4px) rotate(5deg); box-shadow: 0 13px 22px rgba(255, 210, 63, 0.34), inset 0 1px 5px rgba(255,255,255,0.5); }
   70% { transform: translateY(1px) rotate(-2deg); }
 }
 @keyframes dustFloat {
@@ -307,41 +310,49 @@
   .hudTopRight button { width: 34px; min-height: 34px; }
   .dialogueBox {
     width: calc(100% - 24px);
-    bottom: 12px;
-    height: 164px;
-    padding: 12px 54px 12px 14px;
-    border-radius: 18px;
+    bottom: 6px;
+    height: 123px;
+    padding: 9px 48px 9px 12px;
+    border-radius: 16px;
   }
   .choiceDialogue {
-    height: 176px;
-    padding: 12px 14px 16px 14px;
+    height: 132px;
+    padding: 9px 12px 10px 12px;
+  }
+  .namePlate {
+    min-height: 22px;
+    margin-bottom: 4px;
+    padding: 3px 9px;
   }
   .phraseText {
-    min-height: 56px;
-    font-size: 0.98rem;
-    line-height: 1.32;
+    min-height: 40px;
+    font-size: 0.9rem;
+    line-height: 1.24;
+  }
+  .choiceDialogue .phraseText {
+    min-height: 32px;
   }
   .coinNextButton {
-    right: 15px;
-    bottom: 16px;
-    width: 31px;
-    height: 31px;
+    right: 13px;
+    bottom: 13px;
+    width: 28px;
+    height: 28px;
   }
   .coinNextButton::before {
-    font-size: 0.9rem;
+    font-size: 0.84rem;
   }
   .coinNextButton::after {
     inset: 4px;
   }
   .choices {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 7px;
+    gap: 6px;
     margin-top: auto;
     margin-bottom: auto;
   }
   .choices button {
-    min-height: 34px;
-    padding: 7px 8px;
-    font-size: 0.82rem;
+    min-height: 30px;
+    padding: 5px 7px;
+    font-size: 0.76rem;
   }
 }
