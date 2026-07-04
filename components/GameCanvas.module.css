@@ -32,6 +32,10 @@
   height: 100% !important;
   display: block;
 }
+.featheredSceneImage {
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 0%, #000 66%, rgba(0,0,0,0.74) 79%, transparent 100%);
+  mask-image: radial-gradient(ellipse at center, #000 0%, #000 66%, rgba(0,0,0,0.74) 79%, transparent 100%);
+}
 .cinematicFade {
   position: absolute;
   inset: 0;
