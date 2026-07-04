@@ -144,7 +144,7 @@
   font-weight: 750;
 }
 .startOverlay button,
-.nextButton,
+.coinNextButton,
 .choices button,
 .hudTopRight button {
   border: 0;
@@ -153,7 +153,7 @@
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 .startOverlay button:hover,
-.nextButton:hover,
+.coinNextButton:hover,
 .choices button:hover,
 .hudTopRight button:hover {
   transform: translateY(-2px);
@@ -173,8 +173,9 @@
   bottom: clamp(18px, 5vw, 42px);
   transform: translateX(-50%);
   width: min(820px, calc(100% - 52px));
-  min-height: 112px;
-  padding: 16px 82px 16px 20px;
+  height: 158px;
+  box-sizing: border-box;
+  padding: 14px 78px 14px 20px;
   border-radius: 22px;
   background: rgba(5, 14, 31, 0.5);
   color: white;
@@ -184,16 +185,21 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
   opacity: 1;
+  transition: opacity 0.28s ease, filter 0.28s ease;
 }
 .dialogueVisible {
   opacity: 1;
 }
+.dialogueChanging {
+  opacity: 0;
+  filter: blur(3px);
+}
 .namePlate {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  margin-bottom: 8px;
-  padding: 5px 13px;
+  min-height: 27px;
+  margin-bottom: 7px;
+  padding: 4px 12px;
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 228, 130, 0.96), rgba(255, 210, 63, 0.94));
   color: #0d2c68;
@@ -202,40 +208,58 @@
 }
 .dialogueBox p {
   margin: 0;
+  min-height: 58px;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.44);
-  font-size: clamp(1.03rem, 2.2vw, 1.32rem);
-  line-height: 1.42;
+  font-size: clamp(1rem, 2.05vw, 1.24rem);
+  line-height: 1.36;
   font-weight: 820;
 }
-.nextButton {
+.coinNextButton {
   position: absolute;
   right: 18px;
   bottom: 18px;
   width: 48px;
   height: 48px;
   border-radius: 999px;
-  color: #0d2c68;
-  background: linear-gradient(180deg, #ffe482, #ffd23f);
-  font-size: 1.35rem;
-  box-shadow: 0 10px 24px rgba(255, 210, 63, 0.26);
+  color: transparent;
+  background: radial-gradient(circle at 35% 28%, #fff4ad 0 12%, #ffe482 13% 32%, #ffd23f 33% 68%, #c99012 69% 100%);
+  box-shadow: 0 10px 24px rgba(255, 210, 63, 0.28), inset 0 2px 7px rgba(255,255,255,0.55);
+  animation: coinBounce 1.55s ease-in-out infinite;
+}
+.coinNextButton::before {
+  content: "$";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(98, 63, 0, 0.7);
+  font-size: 1.15rem;
+  font-weight: 950;
 }
 .choices {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 8px;
 }
 .choices button {
-  min-height: 48px;
-  padding: 11px 13px;
-  border-radius: 14px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: 13px;
   color: #0d2c68;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(255, 210, 63, 0.45);
+  font-size: 0.9rem;
+  line-height: 1.15;
 }
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+@keyframes coinBounce {
+  0%, 100% { transform: translateY(0) rotate(-5deg); box-shadow: 0 10px 24px rgba(255, 210, 63, 0.24), inset 0 2px 7px rgba(255,255,255,0.55); }
+  45% { transform: translateY(-7px) rotate(6deg); box-shadow: 0 17px 30px rgba(255, 210, 63, 0.36), inset 0 2px 7px rgba(255,255,255,0.55); }
+  70% { transform: translateY(1px) rotate(-2deg); }
 }
 @keyframes dustFloat {
   from { transform: translate3d(0, 18px, 0); opacity: 0; }
@@ -261,9 +285,29 @@
   .dialogueBox {
     width: calc(100% - 24px);
     bottom: 12px;
-    min-height: 118px;
-    padding: 13px 64px 14px 14px;
+    height: 164px;
+    padding: 12px 60px 12px 14px;
     border-radius: 18px;
   }
-  .choices { grid-template-columns: 1fr; }
+  .dialogueBox p {
+    min-height: 56px;
+    font-size: 0.98rem;
+    line-height: 1.32;
+  }
+  .coinNextButton {
+    right: 14px;
+    bottom: 14px;
+    width: 42px;
+    height: 42px;
+  }
+  .choices {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin-top: 7px;
+  }
+  .choices button {
+    min-height: 32px;
+    padding: 6px 8px;
+    font-size: 0.82rem;
+  }
 }
