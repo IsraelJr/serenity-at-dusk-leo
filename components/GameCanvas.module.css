@@ -170,7 +170,7 @@
   position: absolute;
   z-index: 4;
   left: 50%;
-  bottom: clamp(12px, calc(5vw - 6px), 36px);
+  bottom: clamp(6px, calc(5vw - 12px), 30px);
   transform: translateX(-50%);
   width: min(820px, calc(100% - 52px));
   height: 119px;
@@ -310,7 +310,7 @@
   .hudTopRight button { width: 34px; min-height: 34px; }
   .dialogueBox {
     width: calc(100% - 24px);
-    bottom: 6px;
+    bottom: 0;
     height: 123px;
     padding: 9px 48px 9px 12px;
     border-radius: 16px;
