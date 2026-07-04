@@ -9,9 +9,9 @@ type Step = { speaker: string; text: string; focus: string; scene: SceneKey };
 type Camera = { x: number; y: number; scale: number; glowX: number; glowY: number };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=model-transition-intro-1",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=model-transition-spend-1",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=model-transition-save-1"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=model-transition-intro-2",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=model-transition-spend-2",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=model-transition-save-2"
 };
 
 const intro: Step[] = [
@@ -37,7 +37,7 @@ const endings: Record<Branch, Step[]> = {
 };
 
 const camera: Record<string, Camera> = {
-  "far-room": { x: 0, y: 0, scale: 0.9, glowX: 48, glowY: 42 },
+  "far-room": { x: 0, y: 0, scale: 0.3, glowX: 48, glowY: 42 },
   "sunny-room": { x: 1, y: 1, scale: 1.01, glowX: 18, glowY: 25 },
   "leo-bed": { x: -3, y: -2, scale: 1.05, glowX: 47, glowY: 50 },
   "coin-close": { x: -8, y: -4, scale: 1.12, glowX: 58, glowY: 58 },
@@ -46,6 +46,7 @@ const camera: Record<string, Camera> = {
 };
 
 const CROSSFADE_MS = 1200;
+const PHRASE_FADE_MS = 280;
 
 function cameraTransform(cam: Camera) {
   return `translate(${cam.x}%, ${cam.y}%) scale(${cam.scale})`;
@@ -56,9 +57,11 @@ export function GameCanvasReal() {
   const [cinematicIntro, setCinematicIntro] = useState(false);
   const [introMoveStarted, setIntroMoveStarted] = useState(false);
   const [index, setIndex] = useState(0);
+  const [renderedIndex, setRenderedIndex] = useState(0);
   const [branch, setBranch] = useState<Branch | null>(null);
   const [displayScene, setDisplayScene] = useState<SceneKey>("intro");
   const [transitioning, setTransitioning] = useState(false);
+  const [phraseChanging, setPhraseChanging] = useState(false);
   const [incomingScene, setIncomingScene] = useState<SceneKey | null>(null);
   const [incomingVisible, setIncomingVisible] = useState(false);
   const [outgoingCamera, setOutgoingCamera] = useState<Camera | null>(null);
@@ -66,8 +69,9 @@ export function GameCanvasReal() {
 
   const steps = useMemo(() => (branch ? [...intro, ...endings[branch]] : intro), [branch]);
   const step = steps[index] ?? steps[steps.length - 1];
-  const isChoice = !branch && index === intro.length - 1;
-  const isLast = index >= steps.length - 1;
+  const renderedStep = steps[renderedIndex] ?? step;
+  const isChoice = !branch && renderedIndex === intro.length - 1;
+  const isLast = renderedIndex >= steps.length - 1;
 
   const normalCam = camera[step.focus] ?? camera["far-room"];
   const introCam = introMoveStarted ? camera["sunny-room"] : camera["far-room"];
@@ -80,8 +84,22 @@ export function GameCanvasReal() {
     setStarted(true);
     setCinematicIntro(true);
     setIntroMoveStarted(false);
-    window.setTimeout(() => setIntroMoveStarted(true), 2000);
-    window.setTimeout(() => setCinematicIntro(false), 5600);
+    window.setTimeout(() => setIntroMoveStarted(true), 1000);
+    window.setTimeout(() => {
+      setRenderedIndex(0);
+      setIndex(0);
+      setCinematicIntro(false);
+    }, 4600);
+  }
+
+  function changePhrase(nextIndex: number) {
+    if (phraseChanging || transitioning) return;
+    setPhraseChanging(true);
+    window.setTimeout(() => {
+      setIndex(nextIndex);
+      setRenderedIndex(nextIndex);
+      window.setTimeout(() => setPhraseChanging(false), PHRASE_FADE_MS);
+    }, PHRASE_FADE_MS);
   }
 
   function next() {
@@ -89,19 +107,21 @@ export function GameCanvasReal() {
       startStory();
       return;
     }
-    if (cinematicIntro || transitioning) return;
-    setIndex((current) => Math.min(current + 1, steps.length - 1));
+    if (cinematicIntro || transitioning || phraseChanging) return;
+    changePhrase(Math.min(renderedIndex + 1, steps.length - 1));
   }
 
   function finishTransition(targetScene: SceneKey, targetBranch: Branch | null, targetIndex: number) {
     setDisplayScene(targetScene);
     setBranch(targetBranch);
     setIndex(targetIndex);
+    setRenderedIndex(targetIndex);
     setIncomingVisible(false);
     setIncomingScene(null);
     setTransitioning(false);
     setOutgoingCamera(null);
     setIncomingCamera(null);
+    setPhraseChanging(false);
   }
 
   function restart() {
@@ -140,13 +160,29 @@ export function GameCanvasReal() {
           <div className={styles.canvasWrap} style={{ position: "relative", overflow: "hidden", background: "#081a3b" }}>
             <img
               src={scenes[displayScene]}
-              alt="Cena atual da história do Léo"
+              alt=""
+              aria-hidden="true"
               style={{
                 position: "absolute",
                 inset: 0,
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
+                filter: "blur(18px) brightness(0.72)",
+                transform: "scale(1.08)",
+                opacity: 0.55
+              }}
+            />
+
+            <img
+              src={scenes[displayScene]}
+              alt="Cena atual da história do Léo"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: baseCamera.scale < 0.75 ? "contain" : "cover",
                 opacity: incomingVisible ? 0 : 1,
                 transform: cameraTransform(baseCamera),
                 transformOrigin: "center center",
@@ -157,21 +193,39 @@ export function GameCanvasReal() {
             />
 
             {incomingScene && (
-              <img
-                src={scenes[incomingScene]}
-                alt="Próxima cena da história do Léo"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  opacity: incomingVisible ? 1 : 0,
-                  transform: cameraTransform(nextCamera),
-                  transformOrigin: "center center",
-                  transition: `opacity ${CROSSFADE_MS}ms ease-in-out`
-                }}
-              />
+              <>
+                <img
+                  src={scenes[incomingScene]}
+                  alt=""
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    filter: "blur(18px) brightness(0.72)",
+                    transform: "scale(1.08)",
+                    opacity: incomingVisible ? 0.55 : 0,
+                    transition: `opacity ${CROSSFADE_MS}ms ease-in-out`
+                  }}
+                />
+                <img
+                  src={scenes[incomingScene]}
+                  alt="Próxima cena da história do Léo"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: nextCamera.scale < 0.75 ? "contain" : "cover",
+                    opacity: incomingVisible ? 1 : 0,
+                    transform: cameraTransform(nextCamera),
+                    transformOrigin: "center center",
+                    transition: `opacity ${CROSSFADE_MS}ms ease-in-out`
+                  }}
+                />
+              </>
             )}
 
             <div style={{ position: "absolute", left: `${baseCamera.glowX}%`, top: `${baseCamera.glowY}%`, width: 150, height: 150, borderRadius: 999, background: "rgba(255, 239, 143, 0.3)", filter: "blur(14px)", opacity: transitioning ? 0.3 : 1, transform: "translate(-50%, -50%)", transition: transitioning ? `opacity ${CROSSFADE_MS}ms ease-in-out` : "left 3.6s cubic-bezier(0.22, 1, 0.36, 1), top 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease" }} />
@@ -179,20 +233,20 @@ export function GameCanvasReal() {
 
           <div className={styles.cinematicFade} />
           <div className={styles.sunRay} />
-          <div className={styles.hudTopLeft}><span>{cinematicIntro ? "Manhã" : `Cena ${Math.min(index + 1, steps.length)}/${steps.length}`}</span></div>
+          <div className={styles.hudTopLeft}><span>{cinematicIntro ? "Manhã" : `Cena ${Math.min(renderedIndex + 1, steps.length)}/${steps.length}`}</span></div>
           <div className={styles.hudTopRight}><button aria-label="Reiniciar" onClick={restart}>↺</button></div>
 
           {!shouldHideDialogue && (
-            <div className={`${styles.dialogueBox} ${styles.dialogueVisible}`}>
-              <div className={styles.namePlate}>{step.speaker}</div>
-              <p>{step.text}</p>
+            <div className={`${styles.dialogueBox} ${styles.dialogueVisible} ${phraseChanging ? styles.dialogueChanging : ""}`}>
+              <div className={styles.namePlate}>{renderedStep.speaker}</div>
+              <p>{renderedStep.text}</p>
               {isChoice ? (
                 <div className={styles.choices}>
                   <button onClick={() => choose("save")}>Guardar para o sonho</button>
                   <button onClick={() => choose("spend")}>Gastar agora</button>
                 </div>
               ) : (
-                <button className={styles.nextButton} onClick={isLast ? restart : next}>{isLast ? "↺" : "➜"}</button>
+                <button aria-label="Próxima fala" className={styles.coinNextButton} onClick={isLast ? restart : next}>●</button>
               )}
             </div>
           )}
