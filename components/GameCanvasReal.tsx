@@ -9,9 +9,9 @@ type Step = { speaker: string; text: string; focus: string; scene: SceneKey };
 type Camera = { x: number; y: number; scale: number; glowX: number; glowY: number };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=model-transition-intro-4",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=model-transition-spend-4",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=model-transition-save-4"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=first-fade-intro-1",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=first-fade-spend-1",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=first-fade-save-1"
 };
 
 const intro: Step[] = [
@@ -177,7 +177,8 @@ export function GameCanvasReal() {
                 objectFit: "cover",
                 filter: "blur(18px) brightness(0.72)",
                 transform: "scale(1.08)",
-                opacity: 0.55
+                opacity: started ? 0.55 : 0,
+                transition: "opacity 900ms ease-in-out"
               }}
             />
 
@@ -190,12 +191,12 @@ export function GameCanvasReal() {
                 width: "100%",
                 height: "100%",
                 objectFit: baseCamera.scale < 0.75 ? "contain" : "cover",
-                opacity: incomingVisible ? 0 : 1,
+                opacity: !started ? 0 : incomingVisible ? 0 : 1,
                 transform: cameraTransform(baseCamera),
                 transformOrigin: "center center",
                 transition: transitioning
                   ? `opacity ${CROSSFADE_MS}ms ease-in-out`
-                  : "transform 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease-in-out"
+                  : "transform 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 900ms ease-in-out"
               }}
             />
 
@@ -235,7 +236,7 @@ export function GameCanvasReal() {
               </>
             )}
 
-            <div style={{ position: "absolute", left: `${baseCamera.glowX}%`, top: `${baseCamera.glowY}%`, width: 150, height: 150, borderRadius: 999, background: "rgba(255, 239, 143, 0.3)", filter: "blur(14px)", opacity: transitioning ? 0.3 : 1, transform: "translate(-50%, -50%)", transition: transitioning ? `opacity ${CROSSFADE_MS}ms ease-in-out` : "left 3.6s cubic-bezier(0.22, 1, 0.36, 1), top 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease" }} />
+            <div style={{ position: "absolute", left: `${baseCamera.glowX}%`, top: `${baseCamera.glowY}%`, width: 150, height: 150, borderRadius: 999, background: "rgba(255, 239, 143, 0.3)", filter: "blur(14px)", opacity: !started ? 0 : transitioning ? 0.3 : 1, transform: "translate(-50%, -50%)", transition: transitioning ? `opacity ${CROSSFADE_MS}ms ease-in-out` : "left 3.6s cubic-bezier(0.22, 1, 0.36, 1), top 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 900ms ease-in-out" }} />
           </div>
 
           <div className={styles.cinematicFade} />
