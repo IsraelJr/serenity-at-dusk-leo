@@ -9,9 +9,9 @@ type Step = { speaker: string; text: string; focus: string; scene: SceneKey };
 type Camera = { x: number; y: number; scale: number; glowX: number; glowY: number };
 
 const scenes: Record<SceneKey, string> = {
-  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=choices-delay-intro-1",
-  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=choices-delay-spend-1",
-  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=choices-delay-save-1"
+  intro: "/assets/D5C982C9-ECC5-4402-931B-CCB79367D38D.png?v=single-crossfade-intro-1",
+  spend: "/assets/2231B40B-39F3-4E29-B7B0-F667C01E3E4B.png?v=single-crossfade-spend-1",
+  save: "/assets/8F68982B-ED7B-494D-A763-0D5AEA20ED21.png?v=single-crossfade-save-1"
 };
 
 const intro: Step[] = [
@@ -47,7 +47,6 @@ const camera: Record<string, Camera> = {
 
 const CROSSFADE_MS = 1200;
 const PHRASE_FADE_MS = 460;
-const HANDOFF_HOLD_MS = 140;
 
 function cameraTransform(cam: Camera) {
   return `translate(${cam.x}%, ${cam.y}%) scale(${cam.scale})`;
@@ -124,22 +123,18 @@ export function GameCanvasReal() {
     changePhrase(Math.min(renderedIndex + 1, steps.length - 1));
   }
 
-  function finishTransition(targetScene: SceneKey, targetBranch: Branch | null, targetIndex: number, targetCamera: Camera) {
+  function finishTransition(targetScene: SceneKey, targetBranch: Branch | null, targetIndex: number) {
     setDisplayScene(targetScene);
     setBranch(targetBranch);
     setIndex(targetIndex);
     setRenderedIndex(targetIndex);
-    setOutgoingCamera(targetCamera);
     setPhraseChanging(false);
     setChoicesVisible(false);
-
-    window.setTimeout(() => {
-      setIncomingVisible(false);
-      setIncomingScene(null);
-      setTransitioning(false);
-      setOutgoingCamera(null);
-      setIncomingCamera(null);
-    }, HANDOFF_HOLD_MS);
+    setIncomingVisible(false);
+    setIncomingScene(null);
+    setTransitioning(false);
+    setOutgoingCamera(null);
+    setIncomingCamera(null);
   }
 
   function restart() {
@@ -156,7 +151,7 @@ export function GameCanvasReal() {
       setStarted(false);
       setCinematicIntro(false);
       setIntroMoveStarted(false);
-      finishTransition("intro", null, 0, targetCam);
+      finishTransition("intro", null, 0);
     }, CROSSFADE_MS + 80);
   }
 
@@ -170,7 +165,7 @@ export function GameCanvasReal() {
     setTransitioning(true);
     setChoicesVisible(false);
     window.setTimeout(() => setIncomingVisible(true), 40);
-    window.setTimeout(() => finishTransition(nextBranch, nextBranch, intro.length, targetCam), CROSSFADE_MS + 80);
+    window.setTimeout(() => finishTransition(nextBranch, nextBranch, intro.length), CROSSFADE_MS + 80);
   }
 
   const dialogueClassName = `${styles.dialogueBox} ${styles.dialogueVisible} ${isChoice ? styles.choiceDialogue : ""}`;
@@ -193,7 +188,7 @@ export function GameCanvasReal() {
                 objectFit: "cover",
                 filter: "blur(18px) brightness(0.72)",
                 transform: "scale(1.08)",
-                opacity: started ? 0.55 : 0,
+                opacity: started && !transitioning ? 0.55 : 0,
                 transition: "opacity 900ms ease-in-out"
               }}
             />
@@ -217,39 +212,21 @@ export function GameCanvasReal() {
             />
 
             {incomingScene && (
-              <>
-                <img
-                  src={scenes[incomingScene]}
-                  alt=""
-                  aria-hidden="true"
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    filter: "blur(18px) brightness(0.72)",
-                    transform: "scale(1.08)",
-                    opacity: incomingVisible ? 0.55 : 0,
-                    transition: `opacity ${CROSSFADE_MS}ms ease-in-out`
-                  }}
-                />
-                <img
-                  src={scenes[incomingScene]}
-                  alt="Próxima cena da história do Léo"
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    width: "100%",
-                    height: "100%",
-                    objectFit: nextCamera.scale < 0.75 ? "contain" : "cover",
-                    opacity: incomingVisible ? 1 : 0,
-                    transform: cameraTransform(nextCamera),
-                    transformOrigin: "center center",
-                    transition: `opacity ${CROSSFADE_MS}ms ease-in-out`
-                  }}
-                />
-              </>
+              <img
+                src={scenes[incomingScene]}
+                alt="Próxima cena da história do Léo"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: nextCamera.scale < 0.75 ? "contain" : "cover",
+                  opacity: incomingVisible ? 1 : 0,
+                  transform: cameraTransform(nextCamera),
+                  transformOrigin: "center center",
+                  transition: `opacity ${CROSSFADE_MS}ms ease-in-out`
+                }}
+              />
             )}
 
             <div style={{ position: "absolute", left: `${baseCamera.glowX}%`, top: `${baseCamera.glowY}%`, width: 150, height: 150, borderRadius: 999, background: "rgba(255, 239, 143, 0.3)", filter: "blur(14px)", opacity: !started ? 0 : transitioning ? 0.3 : 1, transform: "translate(-50%, -50%)", transition: transitioning ? `opacity ${CROSSFADE_MS}ms ease-in-out` : "left 3.6s cubic-bezier(0.22, 1, 0.36, 1), top 3.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 900ms ease-in-out" }} />
